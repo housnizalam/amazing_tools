@@ -1,6 +1,15 @@
 import 'package:flutter/material.dart';
 
-
+/// This is a button that has a press effect
+/// Parameters:
+/// - [child]:[child] is the widget representing the button. This widget is required.
+/// - [onPressed]: [onPressed] is a function that the button should perform when pressed.
+/// - [onFocusChange]: [onFocusChange]  is a function that the button should perform when the focus changes.
+/// - [onHover]: [onHover] is a function that the button should perform when the Hover changes.
+/// - [onLongPress]:[onLongPress] is a function that the button should perform when long pressed.
+/// - [style]:[style] is an attribute that allows the user to change the button style.
+/// - [color]:[color] is an attribute that allows the user to change the button color.
+/// - [onPressShrink]:[onPressShrink] is an attribute that allows the user to controle the press effect. Default to 0.8.
 class PressButton extends StatefulWidget {
   const PressButton({
     this.child,
@@ -27,7 +36,6 @@ class PressButton extends StatefulWidget {
 }
 
 class _PressButtonState extends State<PressButton> with TickerProviderStateMixin {
-
   late AnimationController _controller;
 
   @override
@@ -96,8 +104,3 @@ class _PressButtonState extends State<PressButton> with TickerProviderStateMixin
     );
   }
 }
-//  Erklärung für die komplizierte Farb findungs logik
-// 000 252 000 252
-// 000 063 000 063
-// 000 127 064 147
-// 000 126 000 126

@@ -1,13 +1,18 @@
-import 'package:amazing_tools/tools/life_widget.dart';
+import 'package:amazing_tools/tools/animated_dialog.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,25 +29,47 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool stop = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: LifeWidget(
-        animateBeginn: 0,
-        animateEnd: 1,
-        animationStyle: AnimationStyle.scale,
-        slideBeginn: Offset(0, 0),
-        slideEnd: Offset(1, 1),
-        child: SizedBox(
-          height: 200,
-          width: 200,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.red,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            SizedBox(),
+            ElevatedButton(
+              onPressed: () {
+                AnimatedDialog.slide(
+                  titelDekoration: TitelDekoration.warnung,
+                  title: 'Slide Titel',
+                  titelSize: 30,
+                  child: Text('slide'),
+                  context: context,
+                  startOffset: Offset(1, 0),
+                );
+              },
+              child: Text('Slide dialog'),
             ),
-          ),
+            ElevatedButton(
+              onPressed: () {
+                AnimatedDialog.scale(child: SizedBox(height: 100, width: 100, child: Text('Scale')), context: context);
+              },
+              child: Text('Scale dialog'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                AnimatedDialog.warnung(
+                  context: context,
+                  textStyle: TextStyle(color: Colors.blue),
+                );
+              },
+              child: Text('Warning dialog'),
+            ),
+            SizedBox(),
+            SizedBox(),
+          ],
         ),
       ),
     );

@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 
-class ColorPicker extends StatefulWidget {
+  /// This is a widget that allows the user to choose a color from a color slider.
+  /// This color can be obtained as a color value or as an integer.
+  /// Parameters:
+  /// - [color]: This is the selected color as a color. This value can be obtained as a static attribute of the class.
+  /// - [colorAsInt]: This is the selected color as an integer.This value can be obtained as a static attribute of the class.
+  /// - [width]: This is the width of the page. This attribute is required 
+  /// - [height]: This is the height of the page. 
+  /// - [colors]: This is the color list. It is optional because there is a default list.
+  /// - [horizentalPadding]: Default to 8.
+  /// - [horizentalPadding]: Default to 8.
+  /// - [testBallRadius]:This is the radius of the circle that showcases the selected color. Default to 50.
+  /// - [sliderBallRadius]:This is the radius of the slider circle. Default to 12.
+  /// - [sliderBallColor]:This is the color of the slider circle. Default to black.
+  /// - [sliderheight]:This is the height of the slider. Default to 15.
+class AmazingColorPicker extends StatefulWidget {
   static Color? color;
   static int? colorAsInt;
   final double width;
@@ -11,7 +25,7 @@ class ColorPicker extends StatefulWidget {
   final double sliderBallRadius;
   final double sliderheight;
   final Color sliderBallColor;
-  const ColorPicker(
+  const AmazingColorPicker(
       {Key? key,
       required this.width,
       this.height,
@@ -23,10 +37,10 @@ class ColorPicker extends StatefulWidget {
       this.sliderBallColor = Colors.black})
       : super(key: key);
   @override
-  ColorPickerState createState() => ColorPickerState();
+  AmazingColorPickerState createState() => AmazingColorPickerState();
 }
 
-class ColorPickerState extends State<ColorPicker> {
+class AmazingColorPickerState extends State<AmazingColorPicker> {
   final List<Color> _colors = [
     const Color.fromARGB(255, 255, 0, 0),
     const Color.fromARGB(255, 255, 128, 0),
@@ -52,8 +66,8 @@ class ColorPickerState extends State<ColorPicker> {
     _sliderWidth = widget.width - 2 * widget.horizentalPadding;
     _currentColor = _calculateSelectedColor(_colorSliderPosition);
     _shadeSliderPosition = (_sliderWidth) / 2 - widget.horizentalPadding; //center the shader selector
-    ColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
-    ColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
+    AmazingColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
+    AmazingColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
   }
 
   _colorChangeHandler(double position) {
@@ -68,8 +82,8 @@ class ColorPickerState extends State<ColorPicker> {
     setState(() {
       _colorSliderPosition = position;
       _currentColor = _calculateSelectedColor(_colorSliderPosition);
-      ColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
-      ColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
+      AmazingColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
+      AmazingColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
     });
   }
 
@@ -81,8 +95,8 @@ class ColorPickerState extends State<ColorPicker> {
     if (position < 0) position = 0;
     setState(() {
       _shadeSliderPosition = position;
-      ColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
-      ColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
+      AmazingColorPicker.color = _calculateShadedColor(_shadeSliderPosition);
+      AmazingColorPicker.colorAsInt = colorToInt(_calculateShadedColor(_shadeSliderPosition));
 
       // print("r: ${_shadedColor.red}, g: ${_shadedColor.green}, b: ${_shadedColor.blue}");
     });
@@ -233,7 +247,7 @@ class ColorPickerState extends State<ColorPicker> {
                 height: widget.testBallRadius,
                 width: widget.testBallRadius,
                 decoration: BoxDecoration(
-                  color: ColorPicker.color,
+                  color: AmazingColorPicker.color,
                   shape: BoxShape.circle,
                 ),
               ),

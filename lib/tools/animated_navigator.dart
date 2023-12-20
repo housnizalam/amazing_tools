@@ -22,9 +22,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            const beginn = Offset(1, 0);
+            const begin = Offset(1, 0);
             const end = Offset(0, 0);
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return SlideTransition(
               position: offsetAnimation,
@@ -76,9 +76,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            const beginn = Offset(-1, 0);
+            const begin = Offset(-1, 0);
             const end = Offset(0, 0);
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return SlideTransition(
               position: offsetAnimation,
@@ -130,9 +130,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            const beginn = Offset(0, 1);
+            const begin = Offset(0, 1);
             const end = Offset(0, 0);
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return SlideTransition(
               position: offsetAnimation,
@@ -184,9 +184,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            const beginn = Offset(0, -1);
+            const begin = Offset(0, -1);
             const end = Offset(0, 0);
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return SlideTransition(
               position: offsetAnimation,
@@ -223,7 +223,7 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   AnimatedNavigator._scale({
     required Widget page,
-    required double? scaleBeginn,
+    required double? scaleBegin,
     Duration duration = const Duration(milliseconds: 300),
   }) : super(
           pageBuilder: (
@@ -239,9 +239,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            final double beginn = scaleBeginn ?? 0;
+            final double begin = scaleBegin ?? 0;
             const double end = 1;
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return ScaleTransition(
               scale: offsetAnimation,
@@ -256,22 +256,22 @@ class AnimatedNavigator extends PageRouteBuilder {
   /// - [page]: The widget representing the page.
   /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
   /// - [duration]: The duration of the scale animation. Defaults to 300 milliseconds.
-  /// - [scaleBeginn]: The size of the scale start. Defaults starts from zero.
+  /// - [scaleBegin]: The size of the scale start. Defaults starts from zero.
 
   static scale({
     required BuildContext context,
     required Widget page,
-    double scaleBeginn = 0,
+    double scaleBegin = 0,
     NaviType naviType = NaviType.push,
     Duration duration = const Duration(milliseconds: 300),
   }) {
     if (naviType == NaviType.push) {
       Navigator.of(context).push(
-        AnimatedNavigator._scale(page: page, duration: duration, scaleBeginn: scaleBeginn),
+        AnimatedNavigator._scale(page: page, duration: duration, scaleBegin: scaleBegin),
       );
     } else if (naviType == NaviType.replacement) {
       Navigator.of(context).pushReplacement(
-        AnimatedNavigator._scale(page: page, duration: duration, scaleBeginn: scaleBeginn),
+        AnimatedNavigator._scale(page: page, duration: duration, scaleBegin: scaleBegin),
       );
     } else {
       Navigator.pop(context);
@@ -281,7 +281,7 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   AnimatedNavigator._rotate({
     required Widget page,
-    required double? scaleBeginn,
+    required double? scaleBegin,
     required double? turns,
     Duration duration = const Duration(milliseconds: 300),
   }) : super(
@@ -298,10 +298,10 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            final double beginn = scaleBeginn ?? 0;
+            final double begin = scaleBegin ?? 0;
             const double end = 1;
             final double endRotate = turns ?? 3;
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final tweenRotate = Tween(begin: 0.0, end: endRotate);
             final offsetAnimation = animation.drive(tween);
             final offsetAnimationRotate = animation.drive(tweenRotate);
@@ -322,12 +322,12 @@ class AnimatedNavigator extends PageRouteBuilder {
   /// - [page]: The widget representing the page.
   /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
   /// - [duration]: The duration of the rotate animation. Defaults to 300 milliseconds.
-  /// - [scaleBeginn]: The size of the scale start. Defaults starts from zero.
+  /// - [scaleBegin]: The size of the scale start. Defaults starts from zero.
   static rotate({
     required BuildContext context,
     required Widget page,
     required double turns,
-    double scaleBeginn = 0,
+    double scaleBegin = 0,
     NaviType naviType = NaviType.push,
     Duration duration = const Duration(milliseconds: 300),
   }) {
@@ -336,7 +336,7 @@ class AnimatedNavigator extends PageRouteBuilder {
         AnimatedNavigator._rotate(
           page: page,
           duration: duration,
-          scaleBeginn: scaleBeginn,
+          scaleBegin: scaleBegin,
           turns: turns,
         ),
       );
@@ -345,7 +345,7 @@ class AnimatedNavigator extends PageRouteBuilder {
         AnimatedNavigator._rotate(
           page: page,
           duration: duration,
-          scaleBeginn: scaleBeginn,
+          scaleBegin: scaleBegin,
           turns: turns,
         ),
       );
@@ -357,7 +357,7 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   AnimatedNavigator._open({
     required Widget page,
-    required double? scaleBeginn,
+    required double? scaleBegin,
     required Alignment? alignment,
     Duration duration = const Duration(milliseconds: 300),
   }) : super(
@@ -390,27 +390,27 @@ class AnimatedNavigator extends PageRouteBuilder {
   /// - [page]: The widget representing the page.
   /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
   /// - [duration]: The duration of the oppening animation. Defaults to 300 milliseconds.
-  ///- [scaleBeginn]: The oppening satrt size. Defaults starts from zero.
+  ///- [scaleBegin]: The oppening satrt size. Defaults starts from zero.
   ///- [alignment]: The oppening start position(center,up,down). Defaults starts from center.
   static open({
     required BuildContext context,
     required Widget page,
     Alignment alignment = Alignment.center,
-    double scaleBeginn = 0,
+    double scaleBegin = 0,
     NaviType naviType = NaviType.push,
     Duration duration = const Duration(milliseconds: 300),
   }) {
     if (naviType == NaviType.push) {
       Navigator.of(context).push(AnimatedNavigator._open(
         page: page,
-        scaleBeginn: scaleBeginn,
+        scaleBegin: scaleBegin,
         alignment: alignment,
       ));
     } else if (naviType == NaviType.replacement) {
       Navigator.of(context).pushReplacement(
         AnimatedNavigator._open(
           page: page,
-          scaleBeginn: scaleBeginn,
+          scaleBegin: scaleBegin,
           alignment: alignment,
           duration: duration,
         ),
@@ -438,9 +438,9 @@ class AnimatedNavigator extends PageRouteBuilder {
             animationto,
             child,
           ) {
-            const double beginn = 0;
+            const double begin = 0;
             const double end = 1;
-            final tween = Tween(begin: beginn, end: end);
+            final tween = Tween(begin: begin, end: end);
             final offsetAnimation = animation.drive(tween);
             return FadeTransition(
               opacity: offsetAnimation,

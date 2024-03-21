@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AnimationStyle { scale, rotate, slide, fade }
+enum AnimationForm { scale, rotate, slide, fade }
 
 /// This is a live widget that moves continuously and repeatedly.
 /// The user can easily and completely control the movement of this widget.
@@ -12,7 +12,7 @@ enum AnimationStyle { scale, rotate, slide, fade }
 /// - [alignment]: Default to center.
 /// - [pading]: Default to 0.
 /// - [reverse]:[reverse] Can control the motion repetition, whether it's back and forth or only in one direction. Default to true: back and forth.
-/// - [animationStyle]:[animationStyle] Can determine the type of Animation(ritate,scale,fade ...) .Default to scale.
+/// - [animationStyle]:[animationForm] Can determine the type of Animation(ritate,scale,fade ...) .Default to scale.
 /// - [slidePoints]:[slidePoints] determine the points that the child folows. Default to [Offset(0, 0.5), Offset(0, -0.5)].
 /// - [stop]:[stop] Enables the user to stop the movement of the widget. Default to false.
 /// - [rotationCenter]:[rotationCenter] Enables the user to choose the rotation center of the widget. Default to center.
@@ -25,7 +25,7 @@ class LiveWidget extends StatefulWidget {
   final Alignment alignment;
   final EdgeInsets pading;
   final bool reverse;
-  final AnimationStyle animationStyle;
+  final AnimationForm animationForm;
   final List<Offset> slidePoints;
   final bool stop;
   final Alignment rotationCenter;
@@ -39,7 +39,7 @@ class LiveWidget extends StatefulWidget {
       this.alignment = Alignment.center,
       this.pading = const EdgeInsets.all(0),
       this.reverse = true,
-      this.animationStyle = AnimationStyle.scale,
+      this.animationForm = AnimationForm.scale,
       this.slidePoints = const [Offset(0, 0.5), Offset(0, -0.5)],
       this.stop = false,
       this.rotationCenter = Alignment.center})
@@ -69,7 +69,7 @@ class _LiveWidgetState extends State<LiveWidget> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return widget.animationStyle == AnimationStyle.slide
+    return widget.animationForm == AnimationForm.slide
         ? SlideTransition(
             position: TweenSequence<Offset>(
               List.generate(
@@ -96,7 +96,7 @@ class _LiveWidgetState extends State<LiveWidget> with TickerProviderStateMixin {
               child: widget.child,
             ),
           )
-        : widget.animationStyle == AnimationStyle.rotate
+        : widget.animationForm == AnimationForm.rotate
             ? RotationTransition(
                 alignment: widget.rotationCenter,
                 turns: Tween(
@@ -117,7 +117,7 @@ class _LiveWidgetState extends State<LiveWidget> with TickerProviderStateMixin {
                   child: widget.child,
                 ),
               )
-            : widget.animationStyle == AnimationStyle.fade
+            : widget.animationForm == AnimationForm.fade
                 ? FadeTransition(
                     opacity: Tween(
                       begin: widget.animateBegin,

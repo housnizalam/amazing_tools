@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:amazing_tools/tools/life_widget.dart';
+import 'package:amazing_tools/tools/live_widget.dart';
 import 'package:flutter/material.dart';
 
 enum TitelDekoration { normal, warnung, spezial }
@@ -58,8 +58,7 @@ class AnimatedDialog {
             end: end,
           ).animate(a1),
           child: AlertDialog(
-            title: titelWidget == null
-                ? Center(
+            title: titelWidget ?? Center(
                     child: Column(
                       children: [
                         if (showCloseIcon)
@@ -128,8 +127,7 @@ class AnimatedDialog {
                           ),
                       ],
                     ),
-                  )
-                : const SizedBox(),
+                  ),
             backgroundColor: backgroundColor ?? Colors.grey[250],
             content: SizedBox(
               height: height ?? widgetHeight * 0.4,

@@ -1,142 +1,206 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 enum Lines { strait, convex }
 
-class arcPoint {
+class ArcPoint {
   final Offset offset;
   final bool glockwiseDirection;
   final double curveX;
 
-  arcPoint({
+  ArcPoint({
     required this.offset,
     this.glockwiseDirection = true,
     this.curveX = 1,
   });
 }
 
+class AmazingBorder {
+  double width;
+  Color color;
+  AmazingBorder({
+    this.width = 1,
+    this.color = Colors.black,
+  });
+}
+
 class AmazingDrawer extends StatefulWidget {
-  final double? height;
-  final double? width;
-  final List<arcPoint> points;
+  final double? drawSheetHeight;
+  final double? drawSheetWidth;
+  final List<ArcPoint> points;
   final Color? color;
-  final bool circular;
-  final double? horizentalRadius;
-  final double? verticalRadius;
-  final Offset? center;
-  final Offset? centerlizedPoint;
+  final Color? backgroundColor;
+  final bool _circular;
+  final double? _horizentalRadius;
+  final double? _verticalRadius;
+  final Offset? _center;
+  final Offset? rotateCenter;
   final Lines drawLine;
-  final bool curveDirection;
-  final bool border;
-  final double borderWidth;
-  final Color borderColor;
-  final double rotationAngle;
+  final AmazingBorder? border;
+  final double shapeRotationAngle;
+  final double seiteRotationAngle;
   final double translateX;
   final double translateY;
+  final List<Widget>? children;
+  static Offset? shapeCenter;
+  final VoidCallback? onTap;
 
   const AmazingDrawer({
+    bool circular = false,
     Key? key,
-    this.horizentalRadius,
-    this.verticalRadius,
-    this.center,
+    double? horizentalRadius,
+    double? verticalRadius,
+    Offset? center,
     this.color,
-    this.height,
-    this.width,
-    this.circular = false,
-    this.curveDirection = true,
-    this.border = false,
+    this.backgroundColor,
+    this.drawSheetHeight,
+    this.drawSheetWidth,
+    this.border,
     this.drawLine = Lines.strait,
-    this.borderColor = Colors.black,
-    this.borderWidth = 1,
-    this.rotationAngle = 0,
-    this.translateX = 0,
+    this.shapeRotationAngle = 0,
+    this.seiteRotationAngle = 0,
     this.translateY = 0,
-    this.centerlizedPoint,
+    this.translateX = 0,
+    this.rotateCenter,
+    this.children,
+    this.onTap,
     required this.points,
-  }) : super(key: key);
+  })  : _center = center,
+        _verticalRadius = verticalRadius,
+        _horizentalRadius = horizentalRadius,
+        _circular = circular,
+        super(key: key);
 
   factory AmazingDrawer.equilaterals({
     Key? key,
-    double? height,
-    double? width,
     Color? color,
-    Lines drawLine = Lines.strait,
+    Color? backgroundColor,
+    double shapeRotationAngle = 0,
+    double seiteRotationAngle = 0,
+    double translateX = 0,
+    double translateY = 0,
+    Offset? rotateCenter,
+    AmazingBorder? border,
+    final List<Widget>? children,
     required double side,
     required Offset startPoint,
+    final VoidCallback? onTap,
   }) {
     return AmazingDrawer(
-      height: height,
-      width: width,
-      drawLine: drawLine,
+      seiteRotationAngle: seiteRotationAngle,
+      onTap: onTap,
+      shapeRotationAngle: shapeRotationAngle,
+      border: border,
+      backgroundColor: backgroundColor,
+      translateX: translateX,
+      translateY: translateY,
+      rotateCenter: rotateCenter,
       points: [
-        arcPoint(offset: Offset(startPoint.dx, startPoint.dy)),
-        arcPoint(offset: Offset(startPoint.dx + side, startPoint.dy)),
-        arcPoint(offset: Offset(startPoint.dx + side / 2, startPoint.dy - side * sqrt(3) / 2)),
+        ArcPoint(offset: Offset(startPoint.dx, startPoint.dy)),
+        ArcPoint(offset: Offset(startPoint.dx + side, startPoint.dy)),
+        ArcPoint(offset: Offset(startPoint.dx + side / 2, startPoint.dy - side * sqrt(3) / 2)),
       ],
       color: color,
+      children: children,
     );
   }
   factory AmazingDrawer.square({
     Key? key,
-    double? height,
-    double? width,
     Color? color,
-    Lines drawLine = Lines.strait,
+    Color? backgroundColor,
+    AmazingBorder? border,
+    double shapeRotationAngle = 0,
+    double seiteRotationAngle = 0,
+    double translateX = 0,
+    double translateY = 0,
+    Offset? rotateCenter,
     required double side,
     required Offset startPoint,
+    final VoidCallback? onTap,
+    final List<Widget>? children,
   }) {
     return AmazingDrawer(
-      height: height,
-      width: width,
-      drawLine: drawLine,
+      onTap: onTap,
+      shapeRotationAngle: shapeRotationAngle,
+      seiteRotationAngle: seiteRotationAngle,
+      backgroundColor: backgroundColor,
+      border: border,
+      translateX: translateX,
+      translateY: translateY,
+      rotateCenter: rotateCenter,
       points: [
-        arcPoint(offset: Offset(startPoint.dx, startPoint.dy)),
-        arcPoint(offset: Offset(startPoint.dx + side, startPoint.dy)),
-        arcPoint(offset: Offset(startPoint.dx + side, startPoint.dy - side)),
-        arcPoint(offset: Offset(startPoint.dx, startPoint.dy - side)),
+        ArcPoint(offset: Offset(startPoint.dx, startPoint.dy)),
+        ArcPoint(offset: Offset(startPoint.dx + side, startPoint.dy)),
+        ArcPoint(offset: Offset(startPoint.dx + side, startPoint.dy - side)),
+        ArcPoint(offset: Offset(startPoint.dx, startPoint.dy - side)),
       ],
       color: color,
+      children: children,
     );
   }
   factory AmazingDrawer.oval({
     Key? key,
-    double? height,
-    double? width,
     Color? color,
+    Color? backgroundColor,
+    AmazingBorder? border,
+    double shapeRotationAngle = 0,
+    double seiteRotationAngle = 0,
+    double translateX = 0,
+    double translateY = 0,
+    Offset? rotateCenter,
     required double horizentalRadius,
     required double verticalRadius,
     required Offset center,
+    final VoidCallback? onTap,
+    final List<Widget>? children,
   }) {
     return AmazingDrawer(
+      border: border,
       horizentalRadius: horizentalRadius,
       verticalRadius: verticalRadius,
       center: center,
-      height: height,
-      width: width,
+      shapeRotationAngle: shapeRotationAngle,
+      seiteRotationAngle: seiteRotationAngle,
+      translateX: translateX,
+      translateY: translateY,
       circular: true,
       points: const [],
       color: color,
+      backgroundColor: backgroundColor,
+      rotateCenter: rotateCenter,
+      onTap: onTap,
+      children: children,
     );
   }
   factory AmazingDrawer.circel({
     Key? key,
-    double? height,
-    double? width,
     Color? color,
+    Color? backgroundColor,
+    AmazingBorder? border,
+    double translateX = 0,
+    double translateY = 0,
     required double radius,
     required Offset center,
+    final VoidCallback? onTap,
+    final List<Widget>? children,
   }) {
     return AmazingDrawer(
+      border: border,
       horizentalRadius: radius,
       verticalRadius: radius,
+      translateX: translateX,
+      translateY: translateY,
       center: center,
-      height: height,
-      width: width,
       circular: true,
       points: const [],
       color: color,
+      backgroundColor: backgroundColor,
+      onTap: onTap,
+      children: children,
     );
   }
 
@@ -144,31 +208,47 @@ class AmazingDrawer extends StatefulWidget {
   State<AmazingDrawer> createState() => _AmazingDrawerState();
 }
 
-class _AmazingDrawerState extends State<AmazingDrawer> {
+class _AmazingDrawerState extends State<AmazingDrawer> with TickerProviderStateMixin {
+  ValueNotifier<Offset> tapPosition = ValueNotifier(Offset.zero);
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
+
     return Transform.rotate(
-      angle: widget.rotationAngle * pi / 180,
-      child: CustomPaint(
-        size: Size(widget.width ?? width, widget.height ?? height),
-        painter: ShapePainter(
-          centerlizedPoint: widget.centerlizedPoint,
-          translateX: widget.translateX,
-          translateY: widget.translateY,
-          rotationAngle: widget.rotationAngle,
-          border: widget.border,
-          borderColor: widget.borderColor,
-          borderWidth: widget.borderWidth,
-          drawline: widget.drawLine,
-          circular: widget.circular,
-          curveDirection: widget.curveDirection,
-          center: widget.center,
-          points: widget.points,
-          color: widget.color ?? Colors.blue,
-          horizentalRadius: widget.horizentalRadius,
-          verticalRadius: widget.verticalRadius,
+      angle: widget.seiteRotationAngle * pi / 180,
+      child: GestureDetector(
+        onTapDown: (details) {
+          setState(() {
+            tapPosition.value = details.localPosition;
+          });
+        },
+        child: ColoredBox(
+          color: widget.backgroundColor ?? Colors.transparent,
+          child: CustomPaint(
+            size: Size(widget.drawSheetWidth ?? width, widget.drawSheetHeight ?? height),
+            painter: ShapePainter(
+              onTap: widget.onTap,
+              details: tapPosition,
+              translateX: widget.translateX,
+              translateY: widget.translateY,
+              rotationAngle: widget.shapeRotationAngle,
+              rotateCenter: widget.rotateCenter,
+              border: widget.border,
+              drawline: widget.drawLine,
+              circular: widget._circular,
+              center: widget._center,
+              points: widget.points,
+              color: widget.color ?? Colors.blue,
+              horizentalRadius: widget._horizentalRadius,
+              verticalRadius: widget._verticalRadius,
+            ),
+            child: Center(
+              child: Stack(
+                children: widget.children ?? [],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -176,74 +256,101 @@ class _AmazingDrawerState extends State<AmazingDrawer> {
 }
 
 class ShapePainter extends CustomPainter {
-  List<arcPoint> points;
+  List<ArcPoint> points;
   Color color;
   bool circular;
-  bool curveDirection;
-  bool border;
+  AmazingBorder? border;
   Offset? center;
-  Offset? centerlizedPoint;
+  Offset? rotateCenter;
   double? horizentalRadius;
   double? verticalRadius;
   Lines drawline;
-  final double borderWidth;
-  final Color borderColor;
   final double rotationAngle;
-  final double translateX;
-  final double translateY;
+  double translateX;
+  double translateY;
+  final ValueNotifier<Offset> details;
+  final VoidCallback? onTap;
 
-  ShapePainter(
-      {required this.color,
-      required this.circular,
-      required this.curveDirection,
-      required this.border,
-      required this.points,
-      required this.drawline,
-      required this.borderColor,
-      required this.borderWidth,
-      required this.translateX,
-      required this.translateY,
-      this.horizentalRadius,
-      this.verticalRadius,
-      required this.rotationAngle,
-      this.centerlizedPoint,
-      this.center});
+  ShapePainter({
+    required this.color,
+    required this.circular,
+    required this.border,
+    required this.points,
+    required this.drawline,
+    required this.translateX,
+    required this.translateY,
+    this.horizentalRadius,
+    this.verticalRadius,
+    required this.rotationAngle,
+    required this.details,
+    required this.onTap,
+    this.rotateCenter,
+    this.center,
+  }) : super(repaint: details);
 
   @override
   void paint(Canvas canvas, Size size) {
-    canvas.save(); // Speichern Sie den aktuellen Zustand des Canvas
-    Offset centerPoint = Offset(size.width / 2, size.height / 2);
-    if (centerlizedPoint != null) {
-      Offset shapeCenter = Offset(centerPoint.dx - centerlizedPoint!.dx, centerPoint.dy - centerlizedPoint!.dy);
-      canvas.translate(shapeCenter.dx, shapeCenter.dy);
-    }
-
-    canvas.translate(translateY, translateX);
-
-    // Wenden Sie die Rotation an
+    canvas.save();
+    Offset shapsCenter;
+    Path shapePath = Path();
     if (circular) {
       Paint paint = Paint()
         ..color = color
         ..style = PaintingStyle.fill;
+      shapsCenter = Offset(
+        center!.dx + translateX,
+        center!.dy + translateY,
+      );
+      AmazingDrawer.shapeCenter = shapsCenter;
 
-      canvas.drawOval(Rect.fromCenter(center: center!, width: horizentalRadius!, height: verticalRadius!), paint);
+      canvas.translate(shapsCenter.dx, shapsCenter.dy);
+      canvas.rotate(rotationAngle * pi / 180);
+      Path path = Path()
+        ..addOval(
+          Rect.fromCenter(
+            center: Offset(
+              center!.dx + translateX - shapsCenter.dx,
+              center!.dy + translateY - shapsCenter.dy,
+            ),
+            width: horizentalRadius!,
+            height: verticalRadius!,
+          ),
+        );
+
+      Offset clickedPoint = Offset(
+        details.value.dx + translateX - shapsCenter.dx,
+        details.value.dy + translateY - shapsCenter.dy,
+      );
+      if (path.contains(clickedPoint) && onTap != null) {
+        onTap!();
+      }
+
+      canvas.drawPath(path, paint);
     } else {
-      // if (points.length < 2) return;
+      shapsCenter = shapeCenter(points);
+      shapsCenter = Offset(shapsCenter.dx + translateX, shapsCenter.dy + translateY);
+      AmazingDrawer.shapeCenter = shapsCenter;
+
+      rotateCenter ??= shapsCenter;
       Paint paint = Paint()
         ..color = color
         ..style = (points.length < 3) ? PaintingStyle.stroke : PaintingStyle.fill;
-      Paint paintBorder = Paint()
-        ..color = borderColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = borderWidth;
 
-      Path shapePath = Path();
+      shapePath = Path();
       List<Offset> offsts = [];
       for (var point in points) {
-        offsts.add(point.offset);
+        offsts.add(
+          Offset(
+            point.offset.dx + translateX - rotateCenter!.dx,
+            point.offset.dy + translateY - rotateCenter!.dy,
+          ),
+        );
       }
 
-      shapePath.moveTo(points[0].offset.dx, points[0].offset.dy);
+      shapePath.moveTo(
+        points[0].offset.dx + translateX - rotateCenter!.dx,
+        points[0].offset.dy + translateY - rotateCenter!.dy,
+      );
 
       if (drawline == Lines.strait) {
         shapePath = Path()..addPolygon(offsts, true);
@@ -251,14 +358,14 @@ class ShapePainter extends CustomPainter {
         for (var point in points) {
           if (point.curveX == 0) {
             shapePath.lineTo(
-              point.offset.dx,
-              point.offset.dy,
+              point.offset.dx + translateX - rotateCenter!.dx,
+              point.offset.dy + translateY - rotateCenter!.dy,
             );
           } else {
             shapePath.arcToPoint(
               Offset(
-                point.offset.dx,
-                point.offset.dy,
+                point.offset.dx + translateX - rotateCenter!.dx,
+                point.offset.dy + translateY - rotateCenter!.dy,
               ),
               radius: Radius.elliptical(point.curveX, 1),
               clockwise: point.glockwiseDirection,
@@ -268,11 +375,39 @@ class ShapePainter extends CustomPainter {
       }
 
       shapePath.close();
+      Offset clickedPoint = Offset(
+        details.value.dx + translateX - rotateCenter!.dx,
+        details.value.dy + translateY - rotateCenter!.dy,
+      );
+      if (shapePath.contains(clickedPoint) && onTap != null) {
+        onTap!();
+      }
+      canvas.translate(rotateCenter!.dx, rotateCenter!.dy);
+      canvas.rotate(rotationAngle * pi / 180);
+
       canvas.drawPath(shapePath, paint);
-      if (border) {
+    }
+    if (border != null) {
+      Paint paintBorder = Paint()
+        ..color = border!.color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = border!.width;
+      if (circular) {
+        canvas.drawOval(
+          Rect.fromCenter(
+              center: Offset(
+                center!.dx + translateX - shapsCenter.dx,
+                center!.dy + translateY - shapsCenter.dy,
+              ),
+              width: horizentalRadius!,
+              height: verticalRadius!),
+          paintBorder,
+        );
+      } else {
         canvas.drawPath(shapePath, paintBorder);
       }
     }
+
     canvas.restore();
   }
 
@@ -280,4 +415,29 @@ class ShapePainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return false;
   }
+}
+
+Offset shapeCenter(List<ArcPoint> points) {
+  double shapeMaxX = 0;
+  double shapeMaxY = 0;
+  double shapeMiniX = 1000000;
+  double shapeMiniY = 1000000;
+  for (var point in points) {
+    if (shapeMaxX < point.offset.dx) {
+      shapeMaxX = point.offset.dx;
+    }
+    if (shapeMaxY < point.offset.dy) {
+      shapeMaxY = point.offset.dy;
+    }
+    if (shapeMiniY > point.offset.dy) {
+      shapeMiniY = point.offset.dy;
+    }
+    if (shapeMiniX > point.offset.dx) {
+      shapeMiniX = point.offset.dx;
+    }
+  }
+  return Offset(
+    shapeMiniX + (shapeMaxX - shapeMiniX) / 2,
+    shapeMiniY + (shapeMaxY - shapeMiniY) / 2,
+  );
 }

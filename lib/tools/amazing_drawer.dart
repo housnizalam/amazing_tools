@@ -5,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-enum Lines { strait, convex }
-
 class ArcPoint {
   final Offset offset;
   final bool glockwiseDirection;
@@ -15,7 +13,7 @@ class ArcPoint {
   ArcPoint({
     required this.offset,
     this.glockwiseDirection = true,
-    this.curveX = 1,
+    this.curveX = 0,
   });
 }
 
@@ -39,7 +37,6 @@ class AmazingDrawer extends StatefulWidget {
   final double? _verticalRadius;
   final Offset? _center;
   final Offset? rotateCenter;
-  final Lines drawLine;
   final AmazingBorder? border;
   final double shapeRotationAngle;
   final double seiteRotationAngle;
@@ -60,7 +57,6 @@ class AmazingDrawer extends StatefulWidget {
     this.drawSheetHeight,
     this.drawSheetWidth,
     this.border,
-    this.drawLine = Lines.strait,
     this.shapeRotationAngle = 0,
     this.seiteRotationAngle = 0,
     this.translateY = 0,
@@ -219,9 +215,7 @@ class _AmazingDrawerState extends State<AmazingDrawer> with TickerProviderStateM
       angle: widget.seiteRotationAngle * pi / 180,
       child: GestureDetector(
         onTapDown: (details) {
-          setState(() {
-            tapPosition.value = details.localPosition;
-          });
+          tapPosition.value = details.localPosition;
         },
         child: ColoredBox(
           color: widget.backgroundColor ?? Colors.transparent,
@@ -235,7 +229,6 @@ class _AmazingDrawerState extends State<AmazingDrawer> with TickerProviderStateM
               rotationAngle: widget.shapeRotationAngle,
               rotateCenter: widget.rotateCenter,
               border: widget.border,
-              drawline: widget.drawLine,
               circular: widget._circular,
               center: widget._center,
               points: widget.points,
@@ -264,7 +257,6 @@ class ShapePainter extends CustomPainter {
   Offset? rotateCenter;
   double? horizentalRadius;
   double? verticalRadius;
-  Lines drawline;
   final double rotationAngle;
   double translateX;
   double translateY;
@@ -276,7 +268,6 @@ class ShapePainter extends CustomPainter {
     required this.circular,
     required this.border,
     required this.points,
-    required this.drawline,
     required this.translateX,
     required this.translateY,
     this.horizentalRadius,
@@ -337,40 +328,27 @@ class ShapePainter extends CustomPainter {
         ..style = (points.length < 3) ? PaintingStyle.stroke : PaintingStyle.fill;
 
       shapePath = Path();
-      List<Offset> offsts = [];
-      for (var point in points) {
-        offsts.add(
-          Offset(
-            point.offset.dx + translateX - rotateCenter!.dx,
-            point.offset.dy + translateY - rotateCenter!.dy,
-          ),
-        );
-      }
 
       shapePath.moveTo(
         points[0].offset.dx + translateX - rotateCenter!.dx,
         points[0].offset.dy + translateY - rotateCenter!.dy,
       );
 
-      if (drawline == Lines.strait) {
-        shapePath = Path()..addPolygon(offsts, true);
-      } else {
-        for (var point in points) {
-          if (point.curveX == 0) {
-            shapePath.lineTo(
+      for (var point in points) {
+        if (point.curveX == 0) {
+          shapePath.lineTo(
+            point.offset.dx + translateX - rotateCenter!.dx,
+            point.offset.dy + translateY - rotateCenter!.dy,
+          );
+        } else {
+          shapePath.arcToPoint(
+            Offset(
               point.offset.dx + translateX - rotateCenter!.dx,
               point.offset.dy + translateY - rotateCenter!.dy,
-            );
-          } else {
-            shapePath.arcToPoint(
-              Offset(
-                point.offset.dx + translateX - rotateCenter!.dx,
-                point.offset.dy + translateY - rotateCenter!.dy,
-              ),
-              radius: Radius.elliptical(point.curveX, 1),
-              clockwise: point.glockwiseDirection,
-            );
-          }
+            ),
+            radius: Radius.elliptical(point.curveX, 1),
+            clockwise: point.glockwiseDirection,
+          );
         }
       }
 

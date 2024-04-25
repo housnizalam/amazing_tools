@@ -82,7 +82,7 @@ class _CircularTimerState extends State<CircularTimer> with TickerProviderStateM
     // double height = MediaQuery.of(context).size.height;
     // double width = MediaQuery.of(context).size.width;
     double arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
-
+    if (arbeitszeit > 11) arbeitszeit = 11;
     if (arbeitszeit.isNegative) arbeitszeit = 0;
 
     final String stringArbeitszeit = '${arbeitszeit.toInt()}:${((arbeitszeit - arbeitszeit.toInt()) * 60).toInt()}';

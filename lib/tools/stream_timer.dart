@@ -10,12 +10,14 @@ class TimeStreamer extends StatefulWidget {
 
 class _TimeStreamerState extends State<TimeStreamer> {
   final _streamController = StreamController<int>();
-  late int counter;
+  late int minutes;
+  late bool close;
 
   @override
   void initState() {
     super.initState();
-    counter = 0;
+    minutes = 0;
+    close = false;
     _startSendingValues();
   }
 
@@ -26,8 +28,14 @@ class _TimeStreamerState extends State<TimeStreamer> {
   }
 
   void _startSendingValues() {
-    Timer.periodic(Duration(seconds: 10), (timer) {
-      counter++;
+    Timer.periodic(Duration(milliseconds: 10), (timer) {
+      if (close) {
+        timer.cancel(); // Stoppt den Timer
+        _streamController.close(); // Schließt den StreamController
+        return;
+      }
+      minutes++;
+
       // Hier kannst du den Wert ändern, den du senden möchtest
       _streamController.sink.add(DateTime.now().millisecondsSinceEpoch);
     });
@@ -43,7 +51,23 @@ class _TimeStreamerState extends State<TimeStreamer> {
         child: StreamBuilder<int>(
           stream: _streamController.stream,
           builder: (context, snapshot) {
-            return CircularTimer(von: DateTime(2024, 04, 25, 8, 0), bis: DateTime(2024, 04, 25, 8, 0 + counter));
+            return Column(
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        close = true;
+                      });
+                    },
+                    child: Text('Stop')),
+                CircularTimer(
+                  von: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour,
+                      DateTime.now().minute),
+                  bis: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour,
+                      DateTime.now().minute+minutes),
+                ),
+              ],
+            );
           },
         ),
       ),

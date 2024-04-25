@@ -77,47 +77,13 @@ class CircularTimer extends StatefulWidget {
 }
 
 class _CircularTimerState extends State<CircularTimer> with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late double arbeitszeit;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController =
-        AnimationController(vsync: this, duration: widget.duration ?? const Duration(milliseconds: 800))
-          ..addListener(() {
-            setState(() {
-              arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
-              if (arbeitszeit.isNegative) arbeitszeit = 0;
-            });
-          });
-    startAnimation();
-  }
-
-  @override
-  void didUpdateWidget(CircularTimer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.von != widget.von || oldWidget.bis != widget.bis) {
-      startAnimation();
-    }
-  }
-
-  void startAnimation() {
-    arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
-    if (arbeitszeit.isNegative) arbeitszeit = 0;
-    _animationController.forward(from: 0.0);
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     // double height = MediaQuery.of(context).size.height;
     // double width = MediaQuery.of(context).size.width;
+    double arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
+
+    if (arbeitszeit.isNegative) arbeitszeit = 0;
 
     final String stringArbeitszeit = '${arbeitszeit.toInt()}:${((arbeitszeit - arbeitszeit.toInt()) * 60).toInt()}';
     final String stringFullzeit =
@@ -128,7 +94,6 @@ class _CircularTimerState extends State<CircularTimer> with TickerProviderStateM
       child: CustomPaint(
         size: Size(widget.widgetHeight, widget.widgetWidth),
         painter: MyPainter(
-          controller: _animationController,
           translateX: widget.translateX,
           translateY: widget.translateY,
           backgroundColor: widget.backgroundColor,
@@ -177,7 +142,6 @@ class MyPainter extends CustomPainter {
   final double radius;
   final double translateX;
   final double translateY;
-  final AnimationController controller;
   final ValueBar valueBar;
   final IndicatorBar indicatorBar;
   final HorizentalBar horizentalBar;
@@ -187,16 +151,13 @@ class MyPainter extends CustomPainter {
     required this.radius,
     required this.translateX,
     required this.translateY,
-    required this.controller,
     required this.valueBar,
     required this.indicatorBar,
     required this.horizentalBar,
     required this.backgroundColor,
-  }) : super(repaint: controller);
+  });
   @override
   void paint(Canvas canvas, Size size) {
-    print(value);
-    print(controller.value);
     final Offset timerCenter = Offset(size.width / 2 + translateX, size.height / 2 + translateY);
     Color valueColor = value > 250
         ? valueBar.overTimeColor
@@ -255,7 +216,7 @@ class MyPainter extends CustomPainter {
             height: radius,
           ),
           startPoint * pi / 180,
-          controller.value * value * pi / 180);
+          value * pi / 180);
     canvas.drawRect(
       Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: size.width, height: size.height),
       backgorundPaint,

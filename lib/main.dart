@@ -1,4 +1,6 @@
+import 'package:amazing_tools/tools/circular_timer.dart';
 import 'package:amazing_tools/tools/circular_timer2.dart';
+import 'package:amazing_tools/tools/stream_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -36,21 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Center(
-        child: Column(
-          children: [
-            Expanded(child: Text('Ädfgt')),
-            Expanded(child: Text('Ädfgt')),
-            Expanded(child: Text('Ädfgt')),
-            CircularTimer(
-              von: DateTime(2024, 1, 1, 8, 0),
-              bis: DateTime(2024, 1, 1, 12, 30),
-              textStyle: const TextStyle(fontSize: 20),
-            ),
-            Expanded(child: Text('Ädfgt')),
-          ],
-        ),
-      ),
+      body: Center(child: TimeStreamer()),
       // AmazingDrawer.equilaterals(
       //   border: AmazingBorder(),
       //   onTap: () {

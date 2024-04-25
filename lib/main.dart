@@ -1,4 +1,3 @@
-import 'package:amazing_tools/tools/amazing_drawer.dart';
 import 'package:amazing_tools/tools/circular_timer2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -45,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(child: Text('Ädfgt')),
             CircularTimer(
               von: DateTime(2024, 1, 1, 8, 0),
-              bis: DateTime(2024, 1, 1, 15, 20),
+              bis: DateTime(2024, 1, 1, 12, 30),
               textStyle: const TextStyle(fontSize: 20),
             ),
             Expanded(child: Text('Ädfgt')),

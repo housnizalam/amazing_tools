@@ -12,7 +12,7 @@ class ValueBar {
   ValueBar({
     this.fullTimeColor = Colors.blue,
     this.lessTimeColor = Colors.yellow,
-    this.overTimeColor = Colors.red,
+    this.overTimeColor = Colors.blue,
     this.width = 10,
   });
 }
@@ -58,7 +58,7 @@ class CircularTimer extends StatefulWidget {
     Key? key,
     required this.von,
     required this.bis,
-    this.fullzeit = 8.5,
+    this.fullzeit = 8,
     this.radius = 200,
     this.widgetHeight = 400,
     this.widgetWidth = 300,
@@ -82,8 +82,9 @@ class _CircularTimerState extends State<CircularTimer> with TickerProviderStateM
     // double height = MediaQuery.of(context).size.height;
     // double width = MediaQuery.of(context).size.width;
     double arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
-    if (arbeitszeit > 11) arbeitszeit = 11;
     if (arbeitszeit.isNegative) arbeitszeit = 0;
+    if (arbeitszeit > 11) arbeitszeit = 11;
+    final overTime = arbeitszeit - widget.fullzeit <= 0 ? 0 : arbeitszeit - widget.fullzeit;
 
     final String stringArbeitszeit = '${arbeitszeit.toInt()}:${((arbeitszeit - arbeitszeit.toInt()) * 60).toInt()}';
     final String stringFullzeit =
@@ -94,6 +95,7 @@ class _CircularTimerState extends State<CircularTimer> with TickerProviderStateM
       child: CustomPaint(
         size: Size(widget.widgetHeight, widget.widgetWidth),
         painter: MyPainter(
+          overTime: overTime * widget.radius / 3,
           translateX: widget.translateX,
           translateY: widget.translateY,
           backgroundColor: widget.backgroundColor,
@@ -142,6 +144,7 @@ class MyPainter extends CustomPainter {
   final double radius;
   final double translateX;
   final double translateY;
+  final overTime;
   final ValueBar valueBar;
   final IndicatorBar indicatorBar;
   final HorizentalBar horizentalBar;
@@ -151,6 +154,7 @@ class MyPainter extends CustomPainter {
     required this.radius,
     required this.translateX,
     required this.translateY,
+    required this.overTime,
     required this.valueBar,
     required this.indicatorBar,
     required this.horizentalBar,
@@ -184,9 +188,14 @@ class MyPainter extends CustomPainter {
       ..strokeWidth = horizentalBar.width
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
+    final Paint paintOverTimeBar = Paint()
+      ..color = Colors.red
+      ..strokeWidth = horizentalBar.width
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
     const double startPoint = 145;
     const double endPointIndecator = 250;
-
+    final fullTimeValue = value > 250 ? 250 : value;
     final p1 = Offset(timerCenter.dx - radius / 2, timerCenter.dy + radius / pi * 0.92);
     final p2 = Offset(timerCenter.dx + radius / 2, timerCenter.dy + radius / pi * 0.92);
     final indicatorPath = Path()
@@ -216,7 +225,7 @@ class MyPainter extends CustomPainter {
             height: radius,
           ),
           startPoint * pi / 180,
-          value * pi / 180);
+          fullTimeValue * pi / 180);
     canvas.drawRect(
       Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: size.width, height: size.height),
       backgorundPaint,
@@ -225,6 +234,7 @@ class MyPainter extends CustomPainter {
     canvas.drawPath(indicatorPath, paintIndicator);
     canvas.drawPath(valuePath, paintValue);
     canvas.drawLine(p1, p2, paintHorizentalBar);
+    if (overTime > 0) canvas.drawLine(p1, Offset(p1.dx + overTime, p1.dy), paintOverTimeBar);
   }
 
   @override

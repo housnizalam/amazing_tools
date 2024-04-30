@@ -1,8 +1,6 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ValueBar {
   Color overTimeColor;
@@ -12,7 +10,7 @@ class ValueBar {
   ValueBar({
     this.fullTimeColor = Colors.blue,
     this.lessTimeColor = Colors.yellow,
-    this.overTimeColor = Colors.red,
+    this.overTimeColor = Colors.blue,
     this.width = 10,
   });
 }
@@ -31,11 +29,12 @@ class IndicatorBar {
 
 class HorizentalBar {
   Color color;
-
+  int overTime;
   double width;
   HorizentalBar({
     this.color = const Color.fromARGB(255, 143, 138, 138),
     this.width = 8,
+    this.overTime = 0,
   });
 }
 
@@ -58,7 +57,7 @@ class AnimatedCircularTimer extends StatefulWidget {
     Key? key,
     required this.von,
     required this.bis,
-    this.fullzeit = 8.5,
+    this.fullzeit = 8,
     this.radius = 200,
     this.widgetHeight = 400,
     this.widgetWidth = 300,
@@ -77,22 +76,28 @@ class AnimatedCircularTimer extends StatefulWidget {
 }
 
 class _AnimatedCircularTimerState extends State<AnimatedCircularTimer> with TickerProviderStateMixin {
-  late AnimationController _animationController;
+  late AnimationController _controller;
+  late AnimationController _barController;
   late double arbeitszeit;
+  late double overTime;
 
   @override
   void initState() {
+    if (widget.duration != null) print(widget.duration!.inMilliseconds);
     super.initState();
-    _animationController =
-        AnimationController(vsync: this, duration: widget.duration ?? const Duration(milliseconds: 800))
-          ..addListener(() {
-            setState(() {
-              arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
-   
-
-              if (arbeitszeit.isNegative) arbeitszeit = 0;
-            });
-          });
+    arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
+    if (arbeitszeit.isNegative) arbeitszeit = 0;
+    if (arbeitszeit > 11) arbeitszeit = 11;
+    overTime = arbeitszeit - widget.fullzeit <= 0 ? 0 : arbeitszeit - widget.fullzeit;
+    print(overTime * widget.radius / 3);
+    _controller = AnimationController(vsync: this, duration: widget.duration ?? const Duration(milliseconds: 800))
+      ..addListener(() {
+        setState(() {});
+      });
+    _barController = AnimationController(vsync: this, duration: widget.duration ?? const Duration(milliseconds: 800))
+      ..addListener(() {
+        setState(() {});
+      });
     startAnimation();
   }
 
@@ -107,12 +112,15 @@ class _AnimatedCircularTimerState extends State<AnimatedCircularTimer> with Tick
   void startAnimation() {
     arbeitszeit = widget.bis.difference(widget.von).inMinutes / 60;
     if (arbeitszeit.isNegative) arbeitszeit = 0;
-    _animationController.forward(from: 0.0);
+    if (arbeitszeit > 11) arbeitszeit = 11;
+    overTime = arbeitszeit - widget.fullzeit <= 0 ? 0 : arbeitszeit - widget.fullzeit;
+    _controller.forward(from: 0.0).whenComplete(() => _barController.forward(from: 0));
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -130,14 +138,14 @@ class _AnimatedCircularTimerState extends State<AnimatedCircularTimer> with Tick
       child: CustomPaint(
         size: Size(widget.widgetHeight, widget.widgetWidth),
         painter: MyPainter(
-          controller: _animationController,
+          barController: _barController,
+          controller: _controller,
           translateX: widget.translateX,
           translateY: widget.translateY,
           backgroundColor: widget.backgroundColor,
           radius: widget.radius,
-          value: arbeitszeit > (widget.fullzeit - 0.5) * 1.5
-              ? (widget.fullzeit - 0.5) * 1.5 * 250 / widget.fullzeit
-              : arbeitszeit * 250 / widget.fullzeit,
+          value: arbeitszeit * 250 / widget.fullzeit,
+          overTime: overTime * widget.radius / 3,
           valueBar: widget.valueBar ?? ValueBar(),
           indicatorBar: widget.indicatorBar ?? IndicatorBar(),
           horizentalBar: widget.horizentalBar ?? HorizentalBar(),
@@ -179,7 +187,9 @@ class MyPainter extends CustomPainter {
   final double radius;
   final double translateX;
   final double translateY;
+  final double overTime;
   final AnimationController controller;
+  final AnimationController barController;
   final ValueBar valueBar;
   final IndicatorBar indicatorBar;
   final HorizentalBar horizentalBar;
@@ -190,11 +200,13 @@ class MyPainter extends CustomPainter {
     required this.translateX,
     required this.translateY,
     required this.controller,
+    required this.barController,
     required this.valueBar,
     required this.indicatorBar,
     required this.horizentalBar,
     required this.backgroundColor,
-  }) : super(repaint: controller);
+    required this.overTime,
+  }) : super(repaint: Listenable.merge([controller, barController]));
   @override
   void paint(Canvas canvas, Size size) {
     final Offset timerCenter = Offset(size.width / 2 + translateX, size.height / 2 + translateY);
@@ -223,9 +235,14 @@ class MyPainter extends CustomPainter {
       ..strokeWidth = horizentalBar.width
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
+    final Paint paintOverTimeBar = Paint()
+      ..color = Colors.red
+      ..strokeWidth = horizentalBar.width
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
     const double startPoint = 145;
     const double endPointIndecator = 250;
-
+    final fullTimeValue = value > 250 ? 250 : value;
     final p1 = Offset(timerCenter.dx - radius / 2, timerCenter.dy + radius / pi * 0.92);
     final p2 = Offset(timerCenter.dx + radius / 2, timerCenter.dy + radius / pi * 0.92);
     final indicatorPath = Path()
@@ -255,7 +272,7 @@ class MyPainter extends CustomPainter {
             height: radius,
           ),
           startPoint * pi / 180,
-          controller.value * value * pi / 180);
+          controller.value * fullTimeValue * pi / 180);
     canvas.drawRect(
       Rect.fromCenter(center: Offset(size.width / 2, size.height / 2), width: size.width, height: size.height),
       backgorundPaint,
@@ -264,6 +281,9 @@ class MyPainter extends CustomPainter {
     canvas.drawPath(indicatorPath, paintIndicator);
     canvas.drawPath(valuePath, paintValue);
     canvas.drawLine(p1, p2, paintHorizentalBar);
+    if (controller.isCompleted) {
+      if (overTime > 0) canvas.drawLine(p1, Offset(p1.dx + overTime * (barController.value), p1.dy), paintOverTimeBar);
+    }
   }
 
   @override

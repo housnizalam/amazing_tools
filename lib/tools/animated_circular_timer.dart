@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
@@ -219,6 +220,11 @@ class MyPainter extends CustomPainter {
       ..color = indicatorBar.color
       ..strokeWidth = indicatorBar.width
       ..style = PaintingStyle.stroke;
+    final Paint paintPoint = Paint()
+      ..color = Colors.red
+      ..strokeWidth = 20
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
     final Paint paintValue = Paint()
       ..color = valueColor
       ..strokeWidth = valueBar.width
@@ -283,6 +289,7 @@ class MyPainter extends CustomPainter {
     canvas.drawLine(p1, p2, paintHorizentalBar);
     if (controller.isCompleted) {
       if (overTime > 0) canvas.drawLine(p1, Offset(p1.dx + overTime * (barController.value), p1.dy), paintOverTimeBar);
+      canvas.drawPoints(PointMode.points, [Offset(p1.dx + overTime * (barController.value) - 5, p1.dy)], paintPoint);
     }
   }
 

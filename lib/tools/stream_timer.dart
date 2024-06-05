@@ -51,6 +51,7 @@ class _AttemdanceIndicatorState extends State<AttemdanceIndicator> {
         ),
         body: Center(
           child: AnimatedCircularTimer(
+            backgroundColor: Colors.transparent,
             von: von,
             bis: bis.subtract(Duration(minutes: 30)),
           ),

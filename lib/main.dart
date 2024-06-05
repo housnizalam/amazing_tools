@@ -1,6 +1,6 @@
 import 'package:amazing_tools/tools/calender/models/calendar_state_classe.dart';
 import 'package:amazing_tools/tools/calender/month_view.dart';
-import 'package:amazing_tools/tools/test.dart';
+import 'package:amazing_tools/tools/amazing_tab_bar_view.dart';
 
 import 'package:flutter/material.dart';
 
@@ -39,9 +39,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    final thisMonth = DateTime.now();
     return Center(
-      child: AmazingTabBarView(),
+      child: AmazingTabBarView(
+        pageHeitToBar: 6,
+        labelWidgets: [
+          Text('blue'),
+          Text('red'),
+        ],
+        pageWidgets: [
+          Container(
+            color: Colors.blue,
+          ),
+          Container(
+            color: Colors.red,
+          )
+        ],
+      ),
     );
   }
 }

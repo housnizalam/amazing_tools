@@ -55,6 +55,7 @@ class _AmazingTabBarViewState extends State<AmazingTabBarView> with TickerProvid
             ),
           Expanded(
             child: TabBar(
+              dividerHeight: 0,
               indicatorWeight: widget.indikatorWeight,
               indicatorColor: widget.indikatorColor ?? const Color.fromARGB(255, 62, 6, 71),
               controller: tabController,

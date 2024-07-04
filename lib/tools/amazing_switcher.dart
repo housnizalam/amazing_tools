@@ -24,8 +24,10 @@ class AmazingSwitcher extends StatefulWidget {
     this.onSecondPress,
     this.onFirstAnimationComplete,
     this.onSecondAnimationComplete,
-    bool singleState = false, // Verborgener Parameter
-  }) : _singleState = singleState;
+    bool singleState = false,
+    double secondStarInnerRadius = 0.1,
+  })  : _singleState = singleState,
+        _secondStarInnerRadius = secondStarInnerRadius;
 
   final double switcherHeight;
   final double switcherWidth;
@@ -43,6 +45,7 @@ class AmazingSwitcher extends StatefulWidget {
   final Function? onFirstAnimationComplete;
   final Function? onSecondAnimationComplete;
   final bool _singleState;
+  final double _secondStarInnerRadius;
 
   // Single State Factory
   factory AmazingSwitcher.singleState({
@@ -53,10 +56,24 @@ class AmazingSwitcher extends StatefulWidget {
     final Function? onFirstAnimationComplete,
     final Function? onSecondAnimationComplete,
     final double indicatorRotationAngel = 360,
+    final double starFirsInnerRadius = 0.8,
+    final double secondStarInnerRadius = 0.1,
+    final Color indicatorColor = Colors.blue,
+    final double starHeads = 7,
+    final double starHeadsRounding = 0,
+    final double starValleyRounding = 0,
   }) {
     return AmazingSwitcher(
       key: key,
-      starInnerRadius: 0.8,
+      starHeadsRounding: starHeadsRounding,
+      starValleyRounding: starValleyRounding,
+      starHeads: starHeads,
+      indicatorColor: indicatorColor,
+      starInnerRadius: starFirsInnerRadius > 1
+          ? 1
+          : starFirsInnerRadius < 0
+              ? 0
+              : starFirsInnerRadius,
       indicatorRotationAngel: indicatorRotationAngel,
       onFirstPress: onFirstPress,
       onSecondPress: onSecondPress,
@@ -66,6 +83,7 @@ class AmazingSwitcher extends StatefulWidget {
       switcherWidth: indicatorRadius,
       switcherGradientColors: const [Colors.transparent, Colors.transparent],
       singleState: true,
+      secondStarInnerRadius: secondStarInnerRadius,
     );
   }
 
@@ -93,10 +111,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
         setState(() {
           if (status == AnimationStatus.completed) {
             if (widget.onFirstAnimationComplete != null) widget.onFirstAnimationComplete!.call();
-            starInnerRadius = 0.8;
+            starInnerRadius = widget.starInnerRadius;
           } else if (status == AnimationStatus.dismissed) {
             if (widget.onSecondAnimationComplete != null) widget.onSecondAnimationComplete!.call();
-            starInnerRadius = 0.8;
+            starInnerRadius = widget.starInnerRadius;
           }
         });
       });
@@ -135,12 +153,13 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
               onTap: () {
                 if (!presed) {
                   if (widget.onFirstPress != null) widget.onFirstPress!.call();
-                  starInnerRadius = 0.1;
+
+                  starInnerRadius = widget._secondStarInnerRadius;
                   _animationController.forward();
                   presed = true;
                 } else {
                   if (widget.onSecondPress != null) widget.onSecondPress!.call();
-                  starInnerRadius = 0.1;
+                  starInnerRadius = widget._secondStarInnerRadius;
                   _animationController.reverse();
                   presed = false;
                 }
@@ -155,7 +174,8 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                         ? StarBorder(
                             points: widget.starHeads < 2 ? 2 : widget.starHeads,
                             innerRadiusRatio: starInnerRadius,
-                          )
+                            pointRounding: widget.starHeadsRounding,
+                            valleyRounding: widget.starValleyRounding)
                         : StarBorder(
                             points: widget.starHeads < 2 ? 2 : widget.starHeads,
                             innerRadiusRatio: widget.starInnerRadius < 0

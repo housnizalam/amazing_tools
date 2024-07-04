@@ -37,6 +37,9 @@ class MyHomePage extends StatelessWidget {
           centerTitle: true,
         ),
         body: AmazingSwitcher.singleState(
+          starHeadsRounding: 0.4,
+          secondStarInnerRadius: 0.1,
+          starFirsInnerRadius: 0.8,
           onFirstPress: () {
             print('press1');
           },

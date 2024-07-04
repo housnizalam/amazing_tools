@@ -1,6 +1,5 @@
+import 'package:amazing_tools/tools/amazing_switcher.dart';
 import 'package:amazing_tools/tools/calender/models/calendar_state_classe.dart';
-import 'package:amazing_tools/tools/to_lern/to_lern.dart';
-
 
 import 'package:flutter/material.dart';
 
@@ -21,26 +20,50 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(
-      
-      ),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatelessWidget {
-
-  const MyHomePage({Key? key,}) : super(key: key);
+  const MyHomePage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('Color Sheme'),
-      ),
-
-      body: AmazingShape(),
-    );
+        appBar: AppBar(
+          centerTitle: true,
+        ),
+        body: AmazingSwitcher.singleState(
+          onFirstPress: () {
+            print('press1');
+          },
+          onSecondPress: () {
+            print('press2');
+          },
+          onFirstAnimationComplete: () {
+            print('on first Animation Complete');
+          },
+          onSecondAnimationComplete: () {
+            print('on second Animation Complete');
+          },
+        )
+        // AmazingSwitcher(
+        //   onFirstPress: () {
+        //     print('press1');
+        //   },
+        //   onSecondPress: () {
+        //     print('press2');
+        //   },
+        //   onFirstAnimationComplete: () {
+        //     print('on first Animation Complete');
+        //   },
+        //   onSecondAnimationComplete: () {
+        //     print('on second Animation Complete');
+        //   },
+        // ),
+        );
   }
 }

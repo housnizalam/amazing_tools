@@ -25,7 +25,9 @@ class _AmazingShapeState extends State<AmazingShape> {
           duration: const Duration(milliseconds: 500),
           alignment: Alignment.center,
           decoration: ShapeDecoration(
-            color: colorScheme.tertiaryContainer,
+            gradient: RadialGradient(
+              colors: [const Color.fromARGB(255, 5, 29, 65), Colors.blue, Colors.blue, Colors.white],
+            ),
             shape:
                 // StarBorder.polygon(
                 //   side: BorderSide(width: 10),
@@ -34,10 +36,10 @@ class _AmazingShapeState extends State<AmazingShape> {
                 // ),
                 StarBorder(
               points: pointCount,
-              innerRadiusRatio: 0.4,
-              pointRounding: 0.7,
-              valleyRounding: 0.2,
-              rotation: 45,
+              innerRadiusRatio: 0.2,
+              pointRounding: 0.3,
+              valleyRounding: 0.5,
+              rotation: 0,
               squash: 0,
               side: BorderSide(width: 9, color: colorScheme.tertiary),
             ),

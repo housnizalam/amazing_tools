@@ -1,8 +1,6 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, public_member_api_docs
 
 import 'dart:math';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AmazingSwitcher extends StatefulWidget {
@@ -50,21 +48,23 @@ class AmazingSwitcher extends StatefulWidget {
   // Single State Factory
   factory AmazingSwitcher.singleState({
     Key? key,
-    final double indicatorRadius = 40,
-    final Function? onFirstPress,
-    final Function? onSecondPress,
-    final Function? onFirstAnimationComplete,
-    final Function? onSecondAnimationComplete,
-    final double indicatorRotationAngel = 360,
-    final double starFirsInnerRadius = 0.8,
-    final double secondStarInnerRadius = 0.1,
-    final Color indicatorColor = Colors.blue,
-    final double starHeads = 7,
-    final double starHeadsRounding = 0,
-    final double starValleyRounding = 0,
+    double indicatorRadius = 40,
+    Function? onFirstPress,
+    Function? onSecondPress,
+    Function? onFirstAnimationComplete,
+    Function? onSecondAnimationComplete,
+    double indicatorRotationAngel = 360,
+    double starFirsInnerRadius = 0.8,
+    double secondStarInnerRadius = 0.1,
+    Color indicatorColor = Colors.blue,
+    double starHeads = 7,
+    double starHeadsRounding = 0,
+    double starValleyRounding = 0,
+    Widget? child,
   }) {
     return AmazingSwitcher(
       key: key,
+      indicatorChild: child,
       starHeadsRounding: starHeadsRounding,
       starValleyRounding: starValleyRounding,
       starHeads: starHeads,
@@ -94,9 +94,11 @@ class AmazingSwitcher extends StatefulWidget {
 class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late double starInnerRadius;
+  late Widget child;
 
   @override
   void initState() {
+    child = widget.indicatorChild ?? SizedBox();
     starInnerRadius = widget.starInnerRadius;
     _animationController = AnimationController(
       vsync: this,
@@ -109,6 +111,11 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
       )
       ..addStatusListener((status) {
         setState(() {
+          if (status == AnimationStatus.forward) {
+            child = SizedBox();
+          } else if (status == AnimationStatus.reverse) {
+            child = SizedBox();
+          }
           if (status == AnimationStatus.completed) {
             if (widget.onFirstAnimationComplete != null) widget.onFirstAnimationComplete!.call();
             starInnerRadius = widget.starInnerRadius;
@@ -195,16 +202,28 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                                     : widget.starValleyRounding,
                           ),
                   ),
-                  child: FittedBox(
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: widget.indicatorChild ?? SizedBox(),
-                    ),
-                  ),
+                  child: widget._singleState
+                      ? FittedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: child,
+                          ),
+                        )
+                      : FittedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.all(3),
+                            child: widget.indicatorChild ?? SizedBox(),
+                          ),
+                        ),
+                  onEnd: () {
+                    setState(() {
+                      child = widget.indicatorChild ?? SizedBox();
+                    });
+                  },
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

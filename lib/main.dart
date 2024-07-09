@@ -37,39 +37,27 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
       ),
-      body: AmazingSwitcher.flipSingleState(
-
-          // child: Text('Hallo'),
-          // starHeadsRounding: 0.4,
-          // secondStarInnerRadius: 0.1,
-          // starFirsInnerRadius: 0.8,
-          // onFirstPress: () {
-          //   print('press1');
-          // },
-          // onSecondPress: () {
-          //   print('press2');
-          // },
-          // onFirstAnimationComplete: () {
-          //   print('on first Animation Complete');
-          // },
-          // onSecondAnimationComplete: () {
-          //   print('on second Animation Complete');
-          // },
-          ),
-      // AmazingSwitcher(
-      //   onFirstPress: () {
-      //     print('press1');
-      //   },
-      //   onSecondPress: () {
-      //     print('press2');
-      //   },
-      //   onFirstAnimationComplete: () {
-      //     print('on first Animation Complete');
-      //   },
-      //   onSecondAnimationComplete: () {
-      //     print('on second Animation Complete');
-      //   },
-      // ),
+      body: AmazingSwitcher(
+        startText: Text(
+          'one',
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        ),
+        secondText: Text('Two'),
+        // AmazingSwitcher(
+        //   onFirstPress: () {
+        //     print('press1');
+        //   },
+        //   onSecondPress: () {
+        //     print('press2');
+        //   },
+        //   onFirstAnimationComplete: () {
+        //     print('on first Animation Complete');
+        //   },
+        //   onSecondAnimationComplete: () {
+        //     print('on second Animation Complete');
+        //   },
+        // ),
+      ),
     );
   }
 }

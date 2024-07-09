@@ -8,6 +8,30 @@ enum SwitchingTyp { dualState, starSingleState, flipSingleState }
 
 class AmazingSwitcher extends StatefulWidget {
   // Main Kontraktor
+  const AmazingSwitcher._internal({
+    super.key,
+    this.switcherHeight = 40,
+    this.switcherWidth = 80,
+    this.indicatorRotationAngel = 360,
+    this.indicatorColor = Colors.blue,
+    this.switcherGradientColors,
+    this.starHeads = 7,
+    this.indicatorChild,
+    this.animationDuration,
+    this.starInnerRadius = 0.7,
+    this.starHeadsRounding = 0,
+    this.starValleyRounding = 0,
+    this.onFirstPress,
+    this.onSecondPress,
+    this.onFirstAnimationComplete,
+    this.onSecondAnimationComplete,
+    this.secondStarInnerRadius = 0.1,
+    this.startText,
+    this.secondText,
+    required this.switchingTyp,
+  });
+
+  // Public Hauptkonstruktor
   const AmazingSwitcher({
     super.key,
     this.switcherHeight = 40,
@@ -25,10 +49,10 @@ class AmazingSwitcher extends StatefulWidget {
     this.onSecondPress,
     this.onFirstAnimationComplete,
     this.onSecondAnimationComplete,
-    double secondStarInnerRadius = 0.1,
-    SwitchingTyp switchingTyp = SwitchingTyp.dualState,
-  })  : _secondStarInnerRadius = secondStarInnerRadius,
-        _switchingTyp = switchingTyp;
+    this.startText,
+    this.secondText,
+  })  : secondStarInnerRadius = 0.1,
+        switchingTyp = SwitchingTyp.dualState;
 
   final double switcherHeight;
   final double switcherWidth;
@@ -45,8 +69,10 @@ class AmazingSwitcher extends StatefulWidget {
   final Function? onSecondPress;
   final Function? onFirstAnimationComplete;
   final Function? onSecondAnimationComplete;
-  final double _secondStarInnerRadius;
-  final SwitchingTyp _switchingTyp;
+  final double secondStarInnerRadius;
+  final SwitchingTyp switchingTyp;
+  final Widget? startText;
+  final Widget? secondText;
 
   // Single State Factory
   factory AmazingSwitcher.starSingleState({
@@ -65,7 +91,7 @@ class AmazingSwitcher extends StatefulWidget {
     double starValleyRounding = 0,
     Widget? child,
   }) {
-    return AmazingSwitcher(
+    return AmazingSwitcher._internal(
       switchingTyp: SwitchingTyp.starSingleState,
       key: key,
       indicatorChild: child,
@@ -91,8 +117,9 @@ class AmazingSwitcher extends StatefulWidget {
   }
 
   factory AmazingSwitcher.flipSingleState({Key? key, final Widget? startSide}) {
-    return AmazingSwitcher(
+    return AmazingSwitcher._internal(
       switchingTyp: SwitchingTyp.flipSingleState,
+      secondStarInnerRadius: 0.1,
     );
   }
 
@@ -148,7 +175,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    if (widget._switchingTyp == SwitchingTyp.flipSingleState) {
+    if (widget.switchingTyp == SwitchingTyp.flipSingleState) {
       return Center(
         child: FlippWidget(),
       );
@@ -165,6 +192,25 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
               gradient:
                   LinearGradient(colors: widget.switcherGradientColors ?? [Colors.yellow[100]!, Colors.yellow[800]!]),
             ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FittedBox(
+                      child: widget.secondText ?? Text(' '),
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FittedBox(
+                    child: widget.startText ?? Text(' '),
+                  ),
+                ))
+              ],
+            ),
           ),
           Positioned(
             left: (widget.switcherWidth - widget.switcherHeight) * _animationController.value,
@@ -175,12 +221,12 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                 if (!presed) {
                   if (widget.onFirstPress != null) widget.onFirstPress!.call();
 
-                  starInnerRadius = widget._secondStarInnerRadius;
+                  starInnerRadius = widget.secondStarInnerRadius;
                   _animationController.forward();
                   presed = true;
                 } else {
                   if (widget.onSecondPress != null) widget.onSecondPress!.call();
-                  starInnerRadius = widget._secondStarInnerRadius;
+                  starInnerRadius = widget.secondStarInnerRadius;
                   _animationController.reverse();
                   presed = false;
                 }
@@ -191,12 +237,13 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                   duration: widget.animationDuration ?? Duration(milliseconds: 500),
                   decoration: ShapeDecoration(
                     color: widget.indicatorColor,
-                    shape: widget._switchingTyp == SwitchingTyp.starSingleState
+                    shape: widget.switchingTyp == SwitchingTyp.starSingleState
                         ? StarBorder(
                             points: widget.starHeads < 2 ? 2 : widget.starHeads,
                             innerRadiusRatio: starInnerRadius,
                             pointRounding: widget.starHeadsRounding,
-                            valleyRounding: widget.starValleyRounding)
+                            valleyRounding: widget.starValleyRounding,
+                          )
                         : StarBorder(
                             points: widget.starHeads < 2 ? 2 : widget.starHeads,
                             innerRadiusRatio: widget.starInnerRadius < 0
@@ -216,14 +263,14 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                                     : widget.starValleyRounding,
                           ),
                   ),
-                  child: widget._switchingTyp == SwitchingTyp.starSingleState
+                  child: widget.switchingTyp == SwitchingTyp.starSingleState
                       ? FittedBox(
                           child: Padding(
                             padding: const EdgeInsets.all(3),
                             child: child,
                           ),
                         )
-                      : widget._switchingTyp == SwitchingTyp.dualState
+                      : widget.switchingTyp == SwitchingTyp.dualState
                           ? FittedBox(
                               child: Padding(
                                 padding: const EdgeInsets.all(3),

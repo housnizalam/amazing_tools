@@ -1,7 +1,10 @@
 // ignore_for_file: prefer_const_constructors, public_member_api_docs
 
 import 'dart:math';
+import 'package:amazing_tools/tools/flip_widget.dart';
 import 'package:flutter/material.dart';
+
+enum SwitchingTyp { dualState, starSingleState, flipSingleState }
 
 class AmazingSwitcher extends StatefulWidget {
   // Main Kontraktor
@@ -22,10 +25,10 @@ class AmazingSwitcher extends StatefulWidget {
     this.onSecondPress,
     this.onFirstAnimationComplete,
     this.onSecondAnimationComplete,
-    bool singleState = false,
     double secondStarInnerRadius = 0.1,
-  })  : _singleState = singleState,
-        _secondStarInnerRadius = secondStarInnerRadius;
+    SwitchingTyp switchingTyp = SwitchingTyp.dualState,
+  })  : _secondStarInnerRadius = secondStarInnerRadius,
+        _switchingTyp = switchingTyp;
 
   final double switcherHeight;
   final double switcherWidth;
@@ -42,11 +45,11 @@ class AmazingSwitcher extends StatefulWidget {
   final Function? onSecondPress;
   final Function? onFirstAnimationComplete;
   final Function? onSecondAnimationComplete;
-  final bool _singleState;
   final double _secondStarInnerRadius;
+  final SwitchingTyp _switchingTyp;
 
   // Single State Factory
-  factory AmazingSwitcher.singleState({
+  factory AmazingSwitcher.starSingleState({
     Key? key,
     double indicatorRadius = 40,
     Function? onFirstPress,
@@ -63,6 +66,7 @@ class AmazingSwitcher extends StatefulWidget {
     Widget? child,
   }) {
     return AmazingSwitcher(
+      switchingTyp: SwitchingTyp.starSingleState,
       key: key,
       indicatorChild: child,
       starHeadsRounding: starHeadsRounding,
@@ -82,8 +86,13 @@ class AmazingSwitcher extends StatefulWidget {
       switcherHeight: indicatorRadius,
       switcherWidth: indicatorRadius,
       switcherGradientColors: const [Colors.transparent, Colors.transparent],
-      singleState: true,
       secondStarInnerRadius: secondStarInnerRadius,
+    );
+  }
+
+  factory AmazingSwitcher.flipSingleState({Key? key, final Widget? startSide}) {
+    return AmazingSwitcher(
+      switchingTyp: SwitchingTyp.flipSingleState,
     );
   }
 
@@ -139,6 +148,11 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    if (widget._switchingTyp == SwitchingTyp.flipSingleState) {
+      return Center(
+        child: FlippWidget(),
+      );
+    }
     return Center(
       child: Stack(
         children: [
@@ -177,7 +191,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                   duration: widget.animationDuration ?? Duration(milliseconds: 500),
                   decoration: ShapeDecoration(
                     color: widget.indicatorColor,
-                    shape: widget._singleState
+                    shape: widget._switchingTyp == SwitchingTyp.starSingleState
                         ? StarBorder(
                             points: widget.starHeads < 2 ? 2 : widget.starHeads,
                             innerRadiusRatio: starInnerRadius,
@@ -202,19 +216,21 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                                     : widget.starValleyRounding,
                           ),
                   ),
-                  child: widget._singleState
+                  child: widget._switchingTyp == SwitchingTyp.starSingleState
                       ? FittedBox(
                           child: Padding(
                             padding: const EdgeInsets.all(3),
                             child: child,
                           ),
                         )
-                      : FittedBox(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3),
-                            child: widget.indicatorChild ?? SizedBox(),
-                          ),
-                        ),
+                      : widget._switchingTyp == SwitchingTyp.dualState
+                          ? FittedBox(
+                              child: Padding(
+                                padding: const EdgeInsets.all(3),
+                                child: widget.indicatorChild ?? SizedBox(),
+                              ),
+                            )
+                          : Text('flipState'),
                   onEnd: () {
                     setState(() {
                       child = widget.indicatorChild ?? SizedBox();

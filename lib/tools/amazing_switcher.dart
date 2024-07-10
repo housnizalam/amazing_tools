@@ -1,8 +1,12 @@
+// ignore_for_file:  sort_constructors_first
 // ignore_for_file: prefer_const_constructors, public_member_api_docs
 
 import 'dart:math';
-import 'package:amazing_tools/tools/flip_widget.dart';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:amazing_tools/tools/flip_widget.dart';
 
 enum SwitchingTyp { dualState, starSingleState, flipSingleState }
 
@@ -13,71 +17,61 @@ class AmazingSwitcher extends StatefulWidget {
     this.switcherHeight = 40,
     this.switcherWidth = 80,
     this.indicatorRotationAngel = 360,
-    this.indicatorColor = Colors.blue,
-    this.switcherGradientColors,
-    this.starHeads = 7,
     this.indicatorChild,
     this.animationDuration,
-    this.starInnerRadius = 0.7,
-    this.starHeadsRounding = 0,
-    this.starValleyRounding = 0,
     this.onFirstPress,
     this.onSecondPress,
     this.onFirstAnimationComplete,
     this.onSecondAnimationComplete,
-    this.secondStarInnerRadius = 0.1,
     this.startText,
     this.secondText,
+    this.switcherState2,
+    required this.switcherState1,
     required this.switchingTyp,
+    this.endStarInnerSize,
+    this.startStarInnerSize,
   });
 
   // Public Hauptkonstruktor
-  const AmazingSwitcher({
-    super.key,
-    this.switcherHeight = 40,
-    this.switcherWidth = 80,
-    this.indicatorRotationAngel = 360,
-    this.indicatorColor = Colors.blue,
-    this.switcherGradientColors,
-    this.starHeads = 7,
-    this.indicatorChild,
-    this.animationDuration,
-    this.starInnerRadius = 0.7,
-    this.starHeadsRounding = 0,
-    this.starValleyRounding = 0,
-    this.onFirstPress,
-    this.onSecondPress,
-    this.onFirstAnimationComplete,
-    this.onSecondAnimationComplete,
-    this.startText,
-    this.secondText,
-  })  : secondStarInnerRadius = 0.1,
-        switchingTyp = SwitchingTyp.dualState;
+  const AmazingSwitcher(
+      {super.key,
+      this.switcherHeight = 40,
+      this.switcherWidth = 80,
+      this.indicatorRotationAngel = 360,
+      this.indicatorChild,
+      this.animationDuration,
+      this.onFirstPress,
+      this.onSecondPress,
+      this.onFirstAnimationComplete,
+      this.onSecondAnimationComplete,
+      this.startText,
+      this.secondText,
+      required this.switcherState1,
+      this.switcherState2,
+      this.endStarInnerSize,
+      this.startStarInnerSize})
+      : switchingTyp = SwitchingTyp.dualState;
 
   final double switcherHeight;
   final double switcherWidth;
   final double indicatorRotationAngel;
-  final Color indicatorColor;
-  final List<Color>? switcherGradientColors;
-  final double starHeads;
+  final double? startStarInnerSize;
+  final double? endStarInnerSize;
   final Widget? indicatorChild;
   final Duration? animationDuration;
-  final double starInnerRadius;
-  final double starHeadsRounding;
-  final double starValleyRounding;
   final Function? onFirstPress;
   final Function? onSecondPress;
   final Function? onFirstAnimationComplete;
   final Function? onSecondAnimationComplete;
-  final double secondStarInnerRadius;
   final SwitchingTyp switchingTyp;
   final Widget? startText;
   final Widget? secondText;
+  final AmazingSwitcherState switcherState1;
+  final AmazingSwitcherState? switcherState2;
 
   // Single State Factory
   factory AmazingSwitcher.starSingleState({
     Key? key,
-    double indicatorRadius = 40,
     Function? onFirstPress,
     Function? onSecondPress,
     Function? onFirstAnimationComplete,
@@ -90,36 +84,33 @@ class AmazingSwitcher extends StatefulWidget {
     double starHeadsRounding = 0,
     double starValleyRounding = 0,
     Widget? child,
+    double? startStarInnerSize,
+    double? endStarInnerSize,
+    required AmazingSwitcherState switcherState1,
+    AmazingSwitcherState? switcherState2,
   }) {
     return AmazingSwitcher._internal(
+      switcherState2: switcherState2?.copyWith(switcherGradientColors: <Color>[Colors.transparent, Colors.transparent]),
+      switcherState1: switcherState1.copyWith(switcherGradientColors: <Color>[Colors.transparent, Colors.transparent]),
+      startStarInnerSize: startStarInnerSize,
+      endStarInnerSize: endStarInnerSize,
       switchingTyp: SwitchingTyp.starSingleState,
       key: key,
       indicatorChild: child,
-      starHeadsRounding: starHeadsRounding,
-      starValleyRounding: starValleyRounding,
-      starHeads: starHeads,
-      indicatorColor: indicatorColor,
-      starInnerRadius: starFirsInnerRadius > 1
-          ? 1
-          : starFirsInnerRadius < 0
-              ? 0
-              : starFirsInnerRadius,
       indicatorRotationAngel: indicatorRotationAngel,
       onFirstPress: onFirstPress,
       onSecondPress: onSecondPress,
       onFirstAnimationComplete: onFirstAnimationComplete,
       onSecondAnimationComplete: onSecondAnimationComplete,
-      switcherHeight: indicatorRadius,
-      switcherWidth: indicatorRadius,
-      switcherGradientColors: const [Colors.transparent, Colors.transparent],
-      secondStarInnerRadius: secondStarInnerRadius,
+      switcherHeight: 40,
+      switcherWidth: 40,
     );
   }
 
   factory AmazingSwitcher.flipSingleState({Key? key, final Widget? startSide}) {
     return AmazingSwitcher._internal(
+      switcherState1: AmazingSwitcherState(),
       switchingTyp: SwitchingTyp.flipSingleState,
-      secondStarInnerRadius: 0.1,
     );
   }
 
@@ -129,13 +120,16 @@ class AmazingSwitcher extends StatefulWidget {
 
 class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late double starInnerRadius;
   late Widget child;
+  late AmazingSwitcherState switcherState;
 
   @override
   void initState() {
+    setState(() {
+      switcherState = AmazingSwitcherState.copyFrom(state1: widget.switcherState1, state2: null)
+          .copyWith(starInnerRadius: widget.startStarInnerSize);
+    });
     child = widget.indicatorChild ?? SizedBox();
-    starInnerRadius = widget.starInnerRadius;
     _animationController = AnimationController(
       vsync: this,
       duration: widget.animationDuration ?? const Duration(milliseconds: 500),
@@ -149,15 +143,17 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
         setState(() {
           if (status == AnimationStatus.forward) {
             child = SizedBox();
+            switcherState = AmazingSwitcherState.copyFrom(state1: widget.switcherState1, state2: widget.switcherState2);
           } else if (status == AnimationStatus.reverse) {
+            switcherState = AmazingSwitcherState.copyFrom(state1: widget.switcherState1, state2: null);
             child = SizedBox();
           }
           if (status == AnimationStatus.completed) {
             if (widget.onFirstAnimationComplete != null) widget.onFirstAnimationComplete!.call();
-            starInnerRadius = widget.starInnerRadius;
+            if (widget.endStarInnerSize != null) switcherState.starInnerRadius = widget.endStarInnerSize!;
           } else if (status == AnimationStatus.dismissed) {
             if (widget.onSecondAnimationComplete != null) widget.onSecondAnimationComplete!.call();
-            starInnerRadius = widget.starInnerRadius;
+            if (widget.startStarInnerSize != null) switcherState.starInnerRadius = widget.startStarInnerSize!;
           }
         });
       });
@@ -180,6 +176,52 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
         child: FlippWidget(),
       );
     }
+    if (widget.switchingTyp == SwitchingTyp.starSingleState) {
+      return Center(
+        child: InkWell(
+          onTap: () {
+            if (!presed) {
+              if (widget.onFirstPress != null) widget.onFirstPress!.call();
+
+              _animationController.forward();
+              presed = true;
+            } else {
+              if (widget.onSecondPress != null) widget.onSecondPress!.call();
+              _animationController.reverse();
+              presed = false;
+            }
+          },
+          child: Transform.rotate(
+            angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value,
+            child: AnimatedContainer(
+              height: switcherState.indicatorSize,
+              width: switcherState.indicatorSize,
+              duration: widget.animationDuration ?? Duration(milliseconds: 500),
+              decoration: ShapeDecoration(
+                color: switcherState.indicatorColor,
+                shape: StarBorder(
+                  points: switcherState.starHeadsNumber,
+                  innerRadiusRatio: switcherState.starInnerRadius,
+                  pointRounding: switcherState.starHeadsRounding,
+                  valleyRounding: switcherState.starValleyRounding,
+                ),
+              ),
+              child: FittedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(3),
+                  child: child,
+                ),
+              ),
+              onEnd: () {
+                setState(() {
+                  child = widget.indicatorChild ?? SizedBox();
+                });
+              },
+            ),
+          ),
+        ),
+      );
+    }
     return Center(
       child: Stack(
         children: [
@@ -189,8 +231,8 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
               color: null,
-              gradient:
-                  LinearGradient(colors: widget.switcherGradientColors ?? [Colors.yellow[100]!, Colors.yellow[800]!]),
+              gradient: LinearGradient(
+                  colors: switcherState.switcherGradientColors ?? [Colors.yellow[100]!, Colors.yellow[800]!]),
             ),
             child: Row(
               children: [
@@ -221,12 +263,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                 if (!presed) {
                   if (widget.onFirstPress != null) widget.onFirstPress!.call();
 
-                  starInnerRadius = widget.secondStarInnerRadius;
                   _animationController.forward();
                   presed = true;
                 } else {
                   if (widget.onSecondPress != null) widget.onSecondPress!.call();
-                  starInnerRadius = widget.secondStarInnerRadius;
                   _animationController.reverse();
                   presed = false;
                 }
@@ -234,61 +274,86 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
               child: Transform.rotate(
                 angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value,
                 child: AnimatedContainer(
-                  duration: widget.animationDuration ?? Duration(milliseconds: 500),
-                  decoration: ShapeDecoration(
-                    color: widget.indicatorColor,
-                    shape: widget.switchingTyp == SwitchingTyp.starSingleState
-                        ? StarBorder(
-                            points: widget.starHeads < 2 ? 2 : widget.starHeads,
-                            innerRadiusRatio: starInnerRadius,
-                            pointRounding: widget.starHeadsRounding,
-                            valleyRounding: widget.starValleyRounding,
-                          )
-                        : StarBorder(
-                            points: widget.starHeads < 2 ? 2 : widget.starHeads,
-                            innerRadiusRatio: widget.starInnerRadius < 0
-                                ? 0
-                                : widget.starInnerRadius > 1
-                                    ? 1
-                                    : widget.starInnerRadius,
-                            pointRounding: widget.starHeadsRounding < 0
-                                ? 0
-                                : widget.starHeadsRounding > 1
-                                    ? 1
-                                    : widget.starHeadsRounding,
-                            valleyRounding: widget.starValleyRounding < 0
-                                ? 0
-                                : widget.starValleyRounding > 1
-                                    ? 1
-                                    : widget.starValleyRounding,
-                          ),
-                  ),
-                  child: widget.switchingTyp == SwitchingTyp.starSingleState
-                      ? FittedBox(
-                          child: Padding(
-                            padding: const EdgeInsets.all(3),
-                            child: child,
-                          ),
-                        )
-                      : widget.switchingTyp == SwitchingTyp.dualState
-                          ? FittedBox(
-                              child: Padding(
-                                padding: const EdgeInsets.all(3),
-                                child: widget.indicatorChild ?? SizedBox(),
-                              ),
-                            )
-                          : Text('flipState'),
-                  onEnd: () {
-                    setState(() {
-                      child = widget.indicatorChild ?? SizedBox();
-                    });
-                  },
-                ),
+                    duration: widget.animationDuration ?? Duration(milliseconds: 500),
+                    decoration: ShapeDecoration(
+                      color: switcherState.indicatorColor,
+                      shape: StarBorder(
+                        points: switcherState.starHeadsNumber,
+                        innerRadiusRatio: switcherState.starInnerRadius,
+                        pointRounding: switcherState.starHeadsRounding,
+                        valleyRounding: switcherState.starValleyRounding,
+                      ),
+                    ),
+                    child: FittedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: widget.indicatorChild ?? SizedBox(),
+                      ),
+                    )),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class AmazingSwitcherState {
+  Color indicatorColor;
+  List<Color>? switcherGradientColors;
+  double starHeadsNumber;
+  double starInnerRadius;
+  double starHeadsRounding;
+  double starValleyRounding;
+  double indicatorSize;
+  AmazingSwitcherState({
+    this.indicatorColor = Colors.blue,
+    this.switcherGradientColors,
+    this.starHeadsNumber = 7,
+    this.starInnerRadius = 0.7,
+    this.starHeadsRounding = 0,
+    this.starValleyRounding = 0,
+    this.indicatorSize = 40,
+  });
+
+  factory AmazingSwitcherState.copyFrom({required AmazingSwitcherState state1, AmazingSwitcherState? state2}) {
+    if (state2 == null) {
+      return AmazingSwitcherState(
+          indicatorColor: state1.indicatorColor,
+          switcherGradientColors: state1.switcherGradientColors,
+          starHeadsNumber: state1.starHeadsNumber,
+          starInnerRadius: state1.starInnerRadius,
+          starHeadsRounding: state1.starHeadsRounding,
+          starValleyRounding: state1.starValleyRounding,
+          indicatorSize: state1.indicatorSize);
+    } else {
+      return AmazingSwitcherState(
+          indicatorColor: state2.indicatorColor,
+          switcherGradientColors: state2.switcherGradientColors,
+          starHeadsNumber: state2.starHeadsNumber,
+          starInnerRadius: state2.starInnerRadius,
+          starHeadsRounding: state2.starHeadsRounding,
+          starValleyRounding: state2.starValleyRounding,
+          indicatorSize: state2.indicatorSize);
+    }
+  }
+  AmazingSwitcherState copyWith({
+    Color? indicatorColor,
+    List<Color>? switcherGradientColors,
+    double? starHeadsNumber,
+    double? starInnerRadius,
+    double? starHeadsRounding,
+    double? starValleyRounding,
+    double? indicatorSize,
+  }) {
+    return AmazingSwitcherState(
+        indicatorColor: indicatorColor ?? this.indicatorColor,
+        switcherGradientColors: switcherGradientColors ?? this.switcherGradientColors,
+        starHeadsNumber: starHeadsNumber ?? this.starHeadsNumber,
+        starInnerRadius: starInnerRadius ?? this.starInnerRadius,
+        starHeadsRounding: starHeadsRounding ?? this.starHeadsRounding,
+        starValleyRounding: starValleyRounding ?? this.starValleyRounding,
+        indicatorSize: indicatorSize ?? this.indicatorSize);
   }
 }

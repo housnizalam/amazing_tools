@@ -1,6 +1,5 @@
 import 'package:amazing_tools/tools/amazing_switcher.dart';
 import 'package:amazing_tools/tools/calender/models/calendar_state_classe.dart';
-import 'package:amazing_tools/tools/flip_widget.dart';
 
 import 'package:flutter/material.dart';
 
@@ -37,12 +36,23 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
       ),
-      body: AmazingSwitcher(
-        startText: Text(
-          'one',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+      body: AmazingSwitcher.starSingleState(
+        startStarInnerSize: 0.7,
+        endStarInnerSize: 0.7,
+        indicatorRotationAngel: 360,
+        switcherState1: AmazingSwitcherState(
+          starInnerRadius: 0.2,
         ),
-        secondText: Text('Two'),
+        switcherState2: AmazingSwitcherState(
+          indicatorColor: Colors.red,
+          starInnerRadius: 0.1,
+          starHeadsRounding: 0.7,
+        ),
+        // startText: Text(
+        //   'one',
+        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        // ),
+        // secondText: Text('Two'),
         // AmazingSwitcher(
         //   onFirstPress: () {
         //     print('press1');

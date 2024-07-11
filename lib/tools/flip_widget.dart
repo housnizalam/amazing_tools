@@ -107,11 +107,10 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                 height: widget.height,
                                 width: widget.width,
                                 color: Colors.blue,
-                                child: Center(
-                                  child: Text(
-                                    'First side',
-                                    style: TextStyle(
-                                      fontSize: 15,
+                                child: const Center(
+                                  child: FittedBox(
+                                    child: Text(
+                                      'First side',
                                     ),
                                   ),
                                 ),
@@ -133,11 +132,10 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                     height: widget.height,
                                     width: widget.width,
                                     color: Colors.red,
-                                    child: Center(
-                                      child: Text(
-                                        'Second side',
-                                        style: TextStyle(
-                                          fontSize: 15,
+                                    child: const Center(
+                                      child: FittedBox(
+                                        child: Text(
+                                          'Second side',
                                         ),
                                       ),
                                     ),
@@ -165,11 +163,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                     height: widget.height,
                                     width: widget.width,
                                     color: Colors.blue,
-                                    child: Center(
-                                      child: Text(
-                                        'First side',
-                                        style: TextStyle(
-                                          fontSize: 15,
+                                    child: const Center(
+                                      child: FittedBox(
+                                        child: Text(
+                                          'First side',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -191,11 +191,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         height: widget.height,
                                         width: widget.width,
                                         color: Colors.red,
-                                        child: Center(
-                                          child: Text(
-                                            'Second side',
-                                            style: TextStyle(
-                                              fontSize: 15,
+                                        child: const Center(
+                                          child: FittedBox(
+                                            child: Text(
+                                              'Second side',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -223,11 +225,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         height: widget.height,
                                         width: widget.width,
                                         color: Colors.blue,
-                                        child: Center(
-                                          child: Text(
-                                            'First side',
-                                            style: TextStyle(
-                                              fontSize: 15,
+                                        child: const Center(
+                                          child: FittedBox(
+                                            child: Text(
+                                              'First side',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -249,11 +253,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                           height: widget.height,
                                           width: widget.width,
                                           color: Colors.red,
-                                          child: Center(
-                                            child: Text(
-                                              'Second side',
-                                              style: TextStyle(
-                                                fontSize: 15,
+                                          child: const Center(
+                                            child: FittedBox(
+                                              child: Text(
+                                                'Second side',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
                                               ),
                                             ),
                                           ),
@@ -279,11 +285,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         height: widget.height,
                                         width: widget.width,
                                         color: Colors.blue,
-                                        child: Center(
-                                          child: Text(
-                                            'First side',
-                                            style: TextStyle(
-                                              fontSize: 15,
+                                        child: const Center(
+                                          child: FittedBox(
+                                            child: Text(
+                                              'First side',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -305,11 +313,13 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                           height: widget.height,
                                           width: widget.width,
                                           color: Colors.red,
-                                          child: Center(
-                                            child: Text(
-                                              'Second side',
-                                              style: TextStyle(
-                                                fontSize: 15,
+                                          child: const Center(
+                                            child: FittedBox(
+                                              child: Text(
+                                                'Second side',
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                ),
                                               ),
                                             ),
                                           ),

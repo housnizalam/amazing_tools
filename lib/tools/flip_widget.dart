@@ -17,6 +17,7 @@ class FlippWidget extends StatefulWidget {
     this.height = 200,
     this.width = 200,
     this.flipWithTranslate = false,
+    this.condition = true,
     this.flipDirection,
     this.animationCurve,
   });
@@ -24,6 +25,7 @@ class FlippWidget extends StatefulWidget {
   final double height;
   final double width;
   final bool flipWithTranslate;
+  final bool condition;
   final Widget? startChild;
   final Widget? secondChild;
   final Curve? animationCurve;
@@ -37,13 +39,32 @@ class FlippWidget extends StatefulWidget {
   State<FlippWidget> createState() => _FlippWidgetState();
 }
 
-class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStateMixin {
+class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin {
   late AnimationController controller;
   late Animation<double> animation;
+  late AnimationController unactiveController;
 
   @override
   void initState() {
     super.initState();
+
+    unactiveController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+      reverseDuration: Duration(milliseconds: 300),
+      upperBound: 0.5,
+    )
+      ..addListener(
+        () {
+          setState(() {});
+        },
+      )
+      ..addStatusListener(
+        (status) {
+          if (status == AnimationStatus.completed) unactiveController.reverse();
+        },
+      );
+
     controller = AnimationController(
       duration: widget.animationDuration ?? const Duration(seconds: 1),
       vsync: this,
@@ -74,6 +95,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
   @override
   void dispose() {
     controller.dispose();
+    unactiveController.dispose();
     super.dispose();
   }
 
@@ -82,9 +104,18 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
     return Center(
       child: GestureDetector(
         onTap: () {
+          print(widget.condition);
           if (animation.status == AnimationStatus.forward || animation.status == AnimationStatus.completed) {
+            if (!widget.condition) {
+              unactiveController.forward();
+              return;
+            }
             controller.reverse();
           } else if (animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed) {
+            if (!widget.condition) {
+              unactiveController.forward();
+              return;
+            }
             controller.forward();
           }
         },
@@ -93,8 +124,8 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                 alignment: Alignment.center,
                 transform: Matrix4.identity()
                   ..setEntry(3, 2, 0.003)
-                  ..rotateY(-animation.value * pi)
-                  ..translate(widget.flipWithTranslate ? widget.width * animation.value : 0.01, 0.00),
+                  ..rotateY(-(animation.value + unactiveController.value) * pi)
+                  ..translate(widget.flipWithTranslate ? widget.width * (animation.value + unactiveController.value) : 0.01, 0.00),
                 child: animation.value < 0.5
                     ? SizedBox(
                         child: widget.startChild != null
@@ -110,7 +141,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                 child: const Center(
                                   child: FittedBox(
                                     child: Text(
-                                      'First side',
+                                      'First',
                                     ),
                                   ),
                                 ),
@@ -135,7 +166,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                     child: const Center(
                                       child: FittedBox(
                                         child: Text(
-                                          'Second side',
+                                          'Second',
                                         ),
                                       ),
                                     ),
@@ -149,8 +180,8 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                     alignment: Alignment.center,
                     transform: Matrix4.identity()
                       ..setEntry(3, 2, 0.003)
-                      ..rotateY(animation.value * pi)
-                      ..translate(widget.flipWithTranslate ? -widget.width * animation.value : 0.01, 0.00),
+                      ..rotateY((animation.value + unactiveController.value) * pi)
+                      ..translate(widget.flipWithTranslate ? -widget.width * (animation.value + unactiveController.value) : 0.01, 0.00),
                     child: animation.value < 0.5
                         ? SizedBox(
                             child: widget.startChild != null
@@ -166,7 +197,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                     child: const Center(
                                       child: FittedBox(
                                         child: Text(
-                                          'First side',
+                                          'First',
                                           style: TextStyle(
                                             fontSize: 15,
                                           ),
@@ -194,7 +225,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         child: const Center(
                                           child: FittedBox(
                                             child: Text(
-                                              'Second side',
+                                              'Second',
                                               style: TextStyle(
                                                 fontSize: 15,
                                               ),
@@ -211,8 +242,8 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                         alignment: Alignment.center,
                         transform: Matrix4.identity()
                           ..setEntry(3, 2, 0.003)
-                          ..rotateX(-animation.value * pi)
-                          ..translate(0.00, widget.flipWithTranslate ? -widget.height * animation.value : 0),
+                          ..rotateX(-(animation.value + unactiveController.value) * pi)
+                          ..translate(0.00, widget.flipWithTranslate ? -widget.height * (animation.value + unactiveController.value) : 0),
                         child: animation.value < 0.5
                             ? SizedBox(
                                 child: widget.startChild != null
@@ -228,7 +259,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         child: const Center(
                                           child: FittedBox(
                                             child: Text(
-                                              'First side',
+                                              'First',
                                               style: TextStyle(
                                                 fontSize: 15,
                                               ),
@@ -256,7 +287,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                           child: const Center(
                                             child: FittedBox(
                                               child: Text(
-                                                'Second side',
+                                                'Second',
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                 ),
@@ -271,8 +302,12 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                         alignment: Alignment.center,
                         transform: Matrix4.identity()
                           ..setEntry(3, 2, 0.003)
-                          ..rotateX(animation.value * pi)
-                          ..translate(0.00, widget.flipWithTranslate ? widget.height * animation.value : 0),
+                          ..rotateX((animation.value + unactiveController.value) * pi)
+                          ..translate(
+                              0.00,
+                              widget.flipWithTranslate
+                                  ? widget.height * (animation.value + unactiveController.value)
+                                  : 0),
                         child: animation.value < 0.5
                             ? SizedBox(
                                 child: widget.startChild != null
@@ -288,7 +323,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                         child: const Center(
                                           child: FittedBox(
                                             child: Text(
-                                              'First side',
+                                              'First',
                                               style: TextStyle(
                                                 fontSize: 15,
                                               ),
@@ -316,7 +351,7 @@ class _FlippWidgetState extends State<FlippWidget> with SingleTickerProviderStat
                                           child: const Center(
                                             child: FittedBox(
                                               child: Text(
-                                                'Second side',
+                                                'Second',
                                                 style: TextStyle(
                                                   fontSize: 15,
                                                 ),

@@ -34,6 +34,8 @@ class AmazingSwitcher extends StatefulWidget {
     this.switcherBoxBorder,
     this.switcherBoxShadowList,
     this.switcherGradientColor,
+    this.firstFlipCondition = true,
+    this.secondFlipCondition = true,
   });
 
   // Public Hauptkonstruktor
@@ -58,7 +60,9 @@ class AmazingSwitcher extends StatefulWidget {
     this.switcherBoxShadowList,
     this.switcherGradientColor,
   })  : switchingTyp = SwitchingTyp.dualState,
-        flipDirection = null;
+        flipDirection = null,
+        firstFlipCondition = true,
+        secondFlipCondition = true;
 
   final double switcherHeight;
   final double switcherWidth;
@@ -80,6 +84,8 @@ class AmazingSwitcher extends StatefulWidget {
   final BoxBorder? switcherBoxBorder;
   final List<BoxShadow>? switcherBoxShadowList;
   final List<Color>? switcherGradientColor;
+  final bool firstFlipCondition;
+  final bool secondFlipCondition;
 
   // Single State Factory
   factory AmazingSwitcher.starSingleState({
@@ -131,8 +137,12 @@ class AmazingSwitcher extends StatefulWidget {
     Function? onSecondAnimationComplete,
     Duration? animationDuration,
     FlipDirection? flipDirection,
+    bool firstFlipCondition = true,
+    bool secondFlipCondition = true,
   }) {
     return AmazingSwitcher._internal(
+      firstFlipCondition: firstFlipCondition,
+      secondFlipCondition: secondFlipCondition,
       flipDirection: flipDirection,
       animationDuration: animationDuration,
       switcherHeight: height,
@@ -154,11 +164,33 @@ class AmazingSwitcher extends StatefulWidget {
 
 class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderStateMixin {
   late AnimationController _animationController;
+  late AnimationController _unActiveAnimationController;
+  late Animation<double> _unActiveAnimation;
   late Widget child;
   late AmazingSwitcherState switcherState;
 
   @override
   void initState() {
+    _unActiveAnimationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 300),
+      reverseDuration: Duration(milliseconds: 300),
+      upperBound: 0.5,
+    )
+      ..addListener(
+        () {
+          setState(() {});
+        },
+      )
+      ..addStatusListener(
+        (status) {
+          if (status == AnimationStatus.completed) _unActiveAnimationController.reverse();
+        },
+      );
+    _unActiveAnimation = CurvedAnimation(
+      parent: _unActiveAnimationController,
+      curve: Curves.linear,
+    );
     setState(() {
       switcherState = AmazingSwitcherState.copyFrom(state1: widget.switcherState1, state2: null)
           .copyWith(starInnerRadius: widget.startStarInnerSize);
@@ -208,6 +240,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
     if (widget.switchingTyp == SwitchingTyp.flipSingleState) {
       return Center(
         child: FlippWidget(
+          condition: !presed ? widget.firstFlipCondition : widget.secondFlipCondition,
           flipDirection: widget.flipDirection,
           animationDuration: widget.animationDuration,
           startChild: widget.startText,
@@ -233,22 +266,44 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
       return Center(
         child: InkWell(
           onTap: () {
+            switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
             if (!presed) {
+              setState(() {
+                switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
+              });
+              if (!switcherState.condition) {
+                _unActiveAnimationController.forward();
+
+                return;
+              }
               if (widget.onFirstPress != null) widget.onFirstPress!.call();
 
               _animationController.forward();
               presed = true;
             } else {
+              setState(() {
+                switcherState = switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
+              });
+              if (!switcherState.condition) {
+                _unActiveAnimationController.forward();
+
+                return;
+              }
               if (widget.onSecondPress != null) widget.onSecondPress!.call();
               _animationController.reverse();
               presed = false;
             }
           },
           child: Transform.rotate(
-            angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value,
+            angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value +
+                _unActiveAnimation.value * widget.indicatorRotationAngel * (pi / 360),
             child: AnimatedContainer(
-              height: switcherState.indicatorSize,
-              width: switcherState.indicatorSize,
+              height: switcherState.indicatorSize == null
+                  ? 40 - _unActiveAnimationController.value * 40
+                  : switcherState.indicatorSize! - _unActiveAnimationController.value * switcherState.indicatorSize!,
+              width: switcherState.indicatorSize == null
+                  ? 40 - _unActiveAnimationController.value * 40
+                  : switcherState.indicatorSize! - _unActiveAnimationController.value * switcherState.indicatorSize!,
               duration: widget.animationDuration ?? Duration(milliseconds: 500),
               decoration: ShapeDecoration(
                 color: switcherState.indicatorColor,
@@ -262,10 +317,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                     ],
                 shape: StarBorder(
                   side: switcherState.indicatorBorder ?? BorderSide(color: Colors.transparent),
-                  points: switcherState.starHeadsNumber,
-                  innerRadiusRatio: switcherState.starInnerRadius,
-                  pointRounding: switcherState.starHeadsRounding,
-                  valleyRounding: switcherState.starValleyRounding,
+                  points: switcherState.starHeadsNumber ?? 7,
+                  innerRadiusRatio: switcherState.starInnerRadius ?? 0.2,
+                  pointRounding: switcherState.starHeadsRounding ?? 0,
+                  valleyRounding: switcherState.starValleyRounding ?? 0,
                 ),
               ),
               child: FittedBox(
@@ -332,25 +387,52 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
             ),
           ),
           Positioned(
-            left: (widget.switcherWidth - widget.switcherHeight) * _animationController.value,
+            left: presed
+                ? (widget.switcherWidth - widget.switcherHeight) *
+                    (_animationController.value - _unActiveAnimation.value)
+                : (widget.switcherWidth - widget.switcherHeight) *
+                    (_animationController.value + _unActiveAnimation.value),
             height: widget.switcherHeight,
             width: widget.switcherHeight,
             child: SizedBox(
               child: InkWell(
                 onTap: () {
                   if (!presed) {
+                    setState(() {
+                      switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
+                    });
+
+                    if (!switcherState.condition) {
+                      _unActiveAnimationController.forward();
+
+                      return;
+                    }
                     if (widget.onFirstPress != null) widget.onFirstPress!.call();
 
                     _animationController.forward();
                     presed = true;
                   } else {
+                    setState(() {
+                      switcherState = switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
+                    });
+                    if (!switcherState.condition) {
+                      _unActiveAnimationController.forward();
+
+                      return;
+                    }
                     if (widget.onSecondPress != null) widget.onSecondPress!.call();
                     _animationController.reverse();
                     presed = false;
                   }
                 },
                 child: Transform.rotate(
-                  angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value,
+                  angle: presed
+                      ? widget.indicatorRotationAngel *
+                          (2 * pi / 360) *
+                          (_animationController.value - _unActiveAnimation.value)
+                      : widget.indicatorRotationAngel *
+                          (2 * pi / 360) *
+                          (_animationController.value + _unActiveAnimation.value),
                   child: AnimatedContainer(
                       duration: widget.animationDuration ?? Duration(milliseconds: 500),
                       decoration: ShapeDecoration(
@@ -365,10 +447,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                             ],
                         shape: StarBorder(
                           side: switcherState.indicatorBorder ?? BorderSide(color: Colors.transparent),
-                          points: switcherState.starHeadsNumber,
-                          innerRadiusRatio: switcherState.starInnerRadius,
-                          pointRounding: switcherState.starHeadsRounding,
-                          valleyRounding: switcherState.starValleyRounding,
+                          points: switcherState.starHeadsNumber ?? 7,
+                          innerRadiusRatio: switcherState.starInnerRadius ?? 0.7,
+                          pointRounding: switcherState.starHeadsRounding ?? 0,
+                          valleyRounding: switcherState.starValleyRounding ?? 0,
                         ),
                       ),
                       child: FittedBox(
@@ -388,23 +470,25 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
 }
 
 class AmazingSwitcherState {
-  Color indicatorColor;
-  double starHeadsNumber;
-  double starInnerRadius;
-  double starHeadsRounding;
-  double starValleyRounding;
-  double indicatorSize;
+  Color? indicatorColor;
+  double? starHeadsNumber;
+  double? starInnerRadius;
+  double? starHeadsRounding;
+  double? starValleyRounding;
+  double? indicatorSize;
+  bool condition;
   Widget? child;
   List<BoxShadow>? indicatorBoxShadow;
   BorderSide? indicatorBorder;
 
   AmazingSwitcherState({
-    this.indicatorColor = Colors.blue,
-    this.starHeadsNumber = 7,
-    this.starInnerRadius = 0.4,
-    this.starHeadsRounding = 0,
-    this.starValleyRounding = 0,
-    this.indicatorSize = 40,
+    this.indicatorColor,
+    this.starHeadsNumber,
+    this.starInnerRadius,
+    this.starHeadsRounding,
+    this.starValleyRounding,
+    this.indicatorSize,
+    this.condition = true,
     this.child,
     this.indicatorBoxShadow,
     this.indicatorBorder,
@@ -413,26 +497,30 @@ class AmazingSwitcherState {
   factory AmazingSwitcherState.copyFrom({required AmazingSwitcherState state1, AmazingSwitcherState? state2}) {
     if (state2 == null) {
       return AmazingSwitcherState(
-          indicatorColor: state1.indicatorColor,
-          starHeadsNumber: inputHandeler(state1.starHeadsNumber, 2, 10000),
-          starInnerRadius: inputHandeler(state1.starInnerRadius),
-          starHeadsRounding: inputHandeler(state1.starHeadsRounding),
-          starValleyRounding: inputHandeler(state1.starValleyRounding),
-          indicatorSize: state1.indicatorSize,
-          child: state1.child,
-          indicatorBoxShadow: state1.indicatorBoxShadow,
-          indicatorBorder: state1.indicatorBorder);
+        indicatorColor: state1.indicatorColor,
+        starHeadsNumber: inputHandeler(state1.starHeadsNumber, 2, 10000),
+        starInnerRadius: inputHandeler(state1.starInnerRadius),
+        starHeadsRounding: inputHandeler(state1.starHeadsRounding),
+        starValleyRounding: inputHandeler(state1.starValleyRounding),
+        indicatorSize: state1.indicatorSize,
+        child: state1.child,
+        indicatorBoxShadow: state1.indicatorBoxShadow,
+        indicatorBorder: state1.indicatorBorder,
+        condition: state1.condition,
+      );
     } else {
       return AmazingSwitcherState(
-        indicatorColor: state2.indicatorColor,
-        starHeadsNumber: inputHandeler(state2.starHeadsNumber, 2, 10000),
-        starInnerRadius: inputHandeler(state2.starInnerRadius),
-        starHeadsRounding: inputHandeler(state2.starHeadsRounding),
-        starValleyRounding: inputHandeler(state2.starValleyRounding),
-        indicatorSize: state2.indicatorSize,
+        indicatorColor: state2.indicatorColor ?? state1.indicatorColor,
+        starHeadsNumber:
+            inputHandeler(state2.starHeadsNumber, 2, 10000) ?? inputHandeler(state1.starHeadsNumber, 2, 10000),
+        starInnerRadius: inputHandeler(state2.starInnerRadius) ?? inputHandeler(state1.starInnerRadius),
+        starHeadsRounding: inputHandeler(state2.starHeadsRounding) ?? inputHandeler(state1.starHeadsRounding),
+        starValleyRounding: inputHandeler(state2.starValleyRounding) ?? inputHandeler(state1.starValleyRounding),
+        indicatorSize: state2.indicatorSize ?? state1.indicatorSize,
         child: state2.child,
-        indicatorBoxShadow: state2.indicatorBoxShadow,
-        indicatorBorder: state2.indicatorBorder,
+        indicatorBoxShadow: state2.indicatorBoxShadow ?? state1.indicatorBoxShadow,
+        indicatorBorder: state2.indicatorBorder ?? state1.indicatorBorder,
+        condition: state2.condition,
       );
     }
   }
@@ -443,6 +531,7 @@ class AmazingSwitcherState {
     double? starHeadsRounding,
     double? starValleyRounding,
     double? indicatorSize,
+    bool? condition,
     Widget? child,
     List<BoxShadow>? indicatorBoxShadow,
     BorderSide? indicatorBorder,
@@ -454,6 +543,7 @@ class AmazingSwitcherState {
       starHeadsRounding: starHeadsRounding ?? this.starHeadsRounding,
       starValleyRounding: starValleyRounding ?? this.starValleyRounding,
       indicatorSize: indicatorSize ?? this.indicatorSize,
+      condition: condition ?? this.condition,
       child: child ?? this.child,
       indicatorBoxShadow: indicatorBoxShadow ?? this.indicatorBoxShadow,
       indicatorBorder: indicatorBorder ?? this.indicatorBorder,
@@ -461,7 +551,8 @@ class AmazingSwitcherState {
   }
 }
 
-double inputHandeler(double number, [double min = 0, double max = 1]) {
+double? inputHandeler(double? number, [double min = 0, double max = 1]) {
+  if (number == null) return null;
   if (number < min) return min;
   if (number > max) return max;
   return number;

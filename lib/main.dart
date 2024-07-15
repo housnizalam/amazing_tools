@@ -26,21 +26,38 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
   const MyHomePage({
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  bool switcher = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
       ),
-      body: AmazingSwitcher(
-        // startSide: Text('one'),
-        // secondSide: Text('two'),
-        // flipDirection: FlipDirection.down,
+      floatingActionButton: FloatingActionButton(
+        child: Text(switcher ? 'Active' : 'Unactive'),
+        onPressed: () {
+          setState(() {
+            switcher = !switcher;
+            print(switcher);
+          });
+        },
+      ),
+      body: AmazingSwitcher.starSingleState(
+        // flipDirection: FlipDirection.right,
+        // height: 100,
+        // width: 100,
+        // firstFlipCondition: switcher,
+        // secondFlipCondition: switcher,
         // startSide: Icon(
         //   Icons.star,
         //   size: 100,
@@ -54,20 +71,22 @@ class MyHomePage extends StatelessWidget {
         //     color: Colors.blue,
         //   ),
         // ),
-        animationDuration: Duration(milliseconds: 300),
-        startStarInnerSize: 0.4,
-        endStarInnerSize: 0.4,
+
         indicatorRotationAngel: 360,
-        switcherState1: AmazingSwitcherState(starInnerRadius: 0.4, starHeadsNumber: 9),
-        switcherState2: AmazingSwitcherState(starInnerRadius: 0.4, starHeadsNumber: 4, starValleyRounding: 1),
-        startText: Text(
-          'one',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        switcherState1: AmazingSwitcherState(
+          starHeadsNumber: 4,
+          indicatorColor: Colors.red,
+          condition: switcher,
         ),
-        secondText: Text(
-          'Two',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
+        switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black),
+        // startText: Text(
+        //   'one',
+        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        // ),
+        // secondText: Text(
+        //   'Two',
+        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        // ),
         // AmazingSwitcher(
         onFirstPress: () {
           print('press1');

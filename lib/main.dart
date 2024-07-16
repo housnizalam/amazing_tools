@@ -52,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       ),
-      body: AmazingSwitcher.starSingleState(
+      body: AmazingSwitcher.dualStateVisibility(
         // flipDirection: FlipDirection.right,
         // height: 100,
         // width: 100,
@@ -71,35 +71,38 @@ class _MyHomePageState extends State<MyHomePage> {
         //     color: Colors.blue,
         //   ),
         // ),
-
-        indicatorRotationAngel: 360,
+        // onFirstUnactive: () {
+        //   print('first unactive');
+        // },
+        // onSecondUnactive: null,
+        // indicatorRotationAngel: 360,
         switcherState1: AmazingSwitcherState(
           starHeadsNumber: 4,
           indicatorColor: Colors.red,
           condition: switcher,
         ),
-        switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black),
-        // startText: Text(
-        //   'one',
-        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        // ),
-        // secondText: Text(
-        //   'Two',
-        //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        // ),
-        // AmazingSwitcher(
-        onFirstPress: () {
-          print('press1');
-        },
-        onSecondPress: () {
-          print('press2');
-        },
-        onFirstAnimationComplete: () {
-          print('on first Animation Complete');
-        },
-        onSecondAnimationComplete: () {
-          print('on second Animation Complete');
-        },
+        // switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black, indicatorSize: 30),
+        // // startText: Text(
+        // //   'one',
+        // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        // // ),
+        // // secondText: Text(
+        // //   'Two',
+        // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+        // // ),
+        // // AmazingSwitcher(
+        // onFirstPress: () {
+        //   print('press1');
+        // },
+        // onSecondPress: () {
+        //   print('press2');
+        // },
+        // onFirstAnimationComplete: () {
+        //   print('on first Animation Complete');
+        // },
+        // onSecondAnimationComplete: () {
+        //   print('on second Animation Complete');
+        // },
         // ),
       ),
     );

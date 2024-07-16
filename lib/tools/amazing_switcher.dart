@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 
 import 'package:amazing_tools/tools/flip_widget.dart';
 
-enum SwitchingTyp { dualState, starSingleState, flipSingleState }
+enum SwitchingTyp { dualState, starSingleState, flipSingleState, dualStateVisibility }
 
 class AmazingSwitcher extends StatefulWidget {
   // Main Konstraktor
@@ -36,6 +36,8 @@ class AmazingSwitcher extends StatefulWidget {
     this.switcherGradientColor,
     this.firstFlipCondition = true,
     this.secondFlipCondition = true,
+    this.onFirstUnactive,
+    this.onSecondUnactive,
   });
 
   // Public Hauptkonstruktor
@@ -59,6 +61,8 @@ class AmazingSwitcher extends StatefulWidget {
     this.switcherBoxBorder,
     this.switcherBoxShadowList,
     this.switcherGradientColor,
+    this.onFirstUnactive,
+    this.onSecondUnactive,
   })  : switchingTyp = SwitchingTyp.dualState,
         flipDirection = null,
         firstFlipCondition = true,
@@ -75,6 +79,8 @@ class AmazingSwitcher extends StatefulWidget {
   final Function? onSecondPress;
   final Function? onFirstAnimationComplete;
   final Function? onSecondAnimationComplete;
+  final Function? onFirstUnactive;
+  final Function? onSecondUnactive;
   final SwitchingTyp switchingTyp;
   final Widget? startText;
   final Widget? secondText;
@@ -106,6 +112,8 @@ class AmazingSwitcher extends StatefulWidget {
     double? endStarInnerSize = 0.7,
     required AmazingSwitcherState switcherState1,
     AmazingSwitcherState? switcherState2,
+    final Function? onFirstUnactive,
+    final Function? onSecondUnactive,
   }) {
     return AmazingSwitcher._internal(
       switcherState2: switcherState2,
@@ -122,6 +130,8 @@ class AmazingSwitcher extends StatefulWidget {
       onSecondAnimationComplete: onSecondAnimationComplete,
       switcherHeight: 40,
       switcherWidth: 40,
+      onFirstUnactive: onFirstUnactive,
+      onSecondUnactive: onSecondUnactive,
     );
   }
 
@@ -139,6 +149,8 @@ class AmazingSwitcher extends StatefulWidget {
     FlipDirection? flipDirection,
     bool firstFlipCondition = true,
     bool secondFlipCondition = true,
+    final Function? onFirstUnactive,
+    final Function? onSecondUnactive,
   }) {
     return AmazingSwitcher._internal(
       firstFlipCondition: firstFlipCondition,
@@ -151,10 +163,21 @@ class AmazingSwitcher extends StatefulWidget {
       onSecondPress: onSecondPress,
       onFirstAnimationComplete: onFirstAnimationComplete,
       onSecondAnimationComplete: onSecondAnimationComplete,
+      onFirstUnactive: onFirstUnactive,
+      onSecondUnactive: onSecondUnactive,
       startText: startSide,
       secondText: secondSide,
       switcherState1: AmazingSwitcherState(),
       switchingTyp: SwitchingTyp.flipSingleState,
+    );
+  }
+  factory AmazingSwitcher.dualStateVisibility({
+    Key? key,
+    required AmazingSwitcherState switcherState1,
+  }) {
+    return AmazingSwitcher._internal(
+      switcherState1: switcherState1,
+      switchingTyp: SwitchingTyp.dualStateVisibility,
     );
   }
 
@@ -185,6 +208,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
       ..addStatusListener(
         (status) {
           if (status == AnimationStatus.completed) _unActiveAnimationController.reverse();
+          if (status == AnimationStatus.dismissed) {
+            if (presed && widget.onSecondUnactive != null) widget.onSecondUnactive!.call();
+            if (!presed && widget.onFirstUnactive != null) widget.onFirstUnactive!.call();
+          }
         },
       );
     _unActiveAnimation = CurvedAnimation(
@@ -237,6 +264,9 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    if (widget.switchingTyp == SwitchingTyp.dualStateVisibility) {
+      return Center();
+    }
     if (widget.switchingTyp == SwitchingTyp.flipSingleState) {
       return Center(
         child: FlippWidget(
@@ -394,72 +424,70 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                     (_animationController.value + _unActiveAnimation.value),
             height: widget.switcherHeight,
             width: widget.switcherHeight,
-            child: SizedBox(
-              child: InkWell(
-                onTap: () {
-                  if (!presed) {
-                    setState(() {
-                      switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
-                    });
+            child: InkWell(
+              onTap: () {
+                if (!presed) {
+                  setState(() {
+                    switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
+                  });
 
-                    if (!switcherState.condition) {
-                      _unActiveAnimationController.forward();
+                  if (!switcherState.condition) {
+                    _unActiveAnimationController.forward();
 
-                      return;
-                    }
-                    if (widget.onFirstPress != null) widget.onFirstPress!.call();
-
-                    _animationController.forward();
-                    presed = true;
-                  } else {
-                    setState(() {
-                      switcherState = switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
-                    });
-                    if (!switcherState.condition) {
-                      _unActiveAnimationController.forward();
-
-                      return;
-                    }
-                    if (widget.onSecondPress != null) widget.onSecondPress!.call();
-                    _animationController.reverse();
-                    presed = false;
+                    return;
                   }
-                },
-                child: Transform.rotate(
-                  angle: presed
-                      ? widget.indicatorRotationAngel *
-                          (2 * pi / 360) *
-                          (_animationController.value - _unActiveAnimation.value)
-                      : widget.indicatorRotationAngel *
-                          (2 * pi / 360) *
-                          (_animationController.value + _unActiveAnimation.value),
-                  child: AnimatedContainer(
-                      duration: widget.animationDuration ?? Duration(milliseconds: 500),
-                      decoration: ShapeDecoration(
-                        color: switcherState.indicatorColor,
-                        shadows: switcherState.indicatorBoxShadow ??
-                            [
-                              BoxShadow(
-                                blurRadius: 2,
-                                blurStyle: BlurStyle.normal,
-                                color: Colors.grey[800]!,
-                              ),
-                            ],
-                        shape: StarBorder(
-                          side: switcherState.indicatorBorder ?? BorderSide(color: Colors.transparent),
-                          points: switcherState.starHeadsNumber ?? 7,
-                          innerRadiusRatio: switcherState.starInnerRadius ?? 0.7,
-                          pointRounding: switcherState.starHeadsRounding ?? 0,
-                          valleyRounding: switcherState.starValleyRounding ?? 0,
-                        ),
+                  if (widget.onFirstPress != null) widget.onFirstPress!.call();
+
+                  _animationController.forward();
+                  presed = true;
+                } else {
+                  setState(() {
+                    switcherState = switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
+                  });
+                  if (!switcherState.condition) {
+                    _unActiveAnimationController.forward();
+
+                    return;
+                  }
+                  if (widget.onSecondPress != null) widget.onSecondPress!.call();
+                  _animationController.reverse();
+                  presed = false;
+                }
+              },
+              child: Transform.rotate(
+                angle: presed
+                    ? widget.indicatorRotationAngel *
+                        (2 * pi / 360) *
+                        (_animationController.value - _unActiveAnimation.value)
+                    : widget.indicatorRotationAngel *
+                        (2 * pi / 360) *
+                        (_animationController.value + _unActiveAnimation.value),
+                child: AnimatedContainer(
+                    duration: widget.animationDuration ?? Duration(milliseconds: 500),
+                    decoration: ShapeDecoration(
+                      color: switcherState.indicatorColor,
+                      shadows: switcherState.indicatorBoxShadow ??
+                          [
+                            BoxShadow(
+                              blurRadius: 2,
+                              blurStyle: BlurStyle.normal,
+                              color: Colors.grey[800]!,
+                            ),
+                          ],
+                      shape: StarBorder(
+                        side: switcherState.indicatorBorder ?? BorderSide(color: Colors.transparent),
+                        points: switcherState.starHeadsNumber ?? 7,
+                        innerRadiusRatio: switcherState.starInnerRadius ?? 0.7,
+                        pointRounding: switcherState.starHeadsRounding ?? 0,
+                        valleyRounding: switcherState.starValleyRounding ?? 0,
                       ),
-                      child: FittedBox(
-                        child: Padding(
-                          padding: const EdgeInsets.all(3),
-                          child: widget.indicatorChild ?? SizedBox(),
-                        ),
-                      )),
-                ),
+                    ),
+                    child: FittedBox(
+                      child: Padding(
+                        padding: const EdgeInsets.all(3),
+                        child: widget.indicatorChild ?? SizedBox(),
+                      ),
+                    )),
               ),
             ),
           ),

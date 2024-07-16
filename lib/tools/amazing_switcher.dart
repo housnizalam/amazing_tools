@@ -174,10 +174,42 @@ class AmazingSwitcher extends StatefulWidget {
   factory AmazingSwitcher.dualStateVisibility({
     Key? key,
     required AmazingSwitcherState switcherState1,
+    final double switcherHeight = 40,
+    final double switcherWidth = 80,
+    final double indicatorRotationAngel = 360,
+    final double? startStarInnerSize = 0.7,
+    final double? endStarInnerSize = 0.7,
+    final Widget? indicatorChild,
+    final Duration? animationDuration,
+    final Function? onFirstPress,
+    final Function? onSecondPress,
+    final Function? onFirstAnimationComplete,
+    final Function? onSecondAnimationComplete,
+    final Function? onFirstUnactive,
+    final Function? onSecondUnactive,
+    final Widget? startText,
+    final Widget? secondText,
+    final AmazingSwitcherState? switcherState2,
   }) {
     return AmazingSwitcher._internal(
-      switcherState1: switcherState1,
       switchingTyp: SwitchingTyp.dualStateVisibility,
+      switcherState1: switcherState1,
+      switcherState2: switcherState2,
+      switcherHeight: switcherHeight,
+      switcherWidth: switcherWidth,
+      indicatorRotationAngel: indicatorRotationAngel,
+      startStarInnerSize: startStarInnerSize,
+      endStarInnerSize: endStarInnerSize,
+      indicatorChild: indicatorChild,
+      animationDuration: animationDuration,
+      onFirstPress: onFirstPress,
+      onSecondPress: onSecondPress,
+      onFirstAnimationComplete: onFirstAnimationComplete,
+      onSecondAnimationComplete: onSecondAnimationComplete,
+      onFirstUnactive: onFirstUnactive,
+      onSecondUnactive: onSecondUnactive,
+      startText: startText,
+      secondText: secondText,
     );
   }
 
@@ -188,7 +220,6 @@ class AmazingSwitcher extends StatefulWidget {
 class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderStateMixin {
   late AnimationController _animationController;
   late AnimationController _unActiveAnimationController;
-  late Animation<double> _unActiveAnimation;
   late Widget child;
   late AmazingSwitcherState switcherState;
 
@@ -214,10 +245,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
           }
         },
       );
-    _unActiveAnimation = CurvedAnimation(
-      parent: _unActiveAnimationController,
-      curve: Curves.linear,
-    );
+
     setState(() {
       switcherState = AmazingSwitcherState.copyFrom(state1: widget.switcherState1, state2: null)
           .copyWith(starInnerRadius: widget.startStarInnerSize);
@@ -257,6 +285,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
   @override
   void dispose() {
     _animationController.dispose();
+    _unActiveAnimationController.dispose();
     super.dispose();
   }
 
@@ -265,7 +294,224 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     if (widget.switchingTyp == SwitchingTyp.dualStateVisibility) {
-      return Center();
+      return Center(
+        child: Container(
+          height: widget.switcherHeight,
+          width: widget.switcherWidth < widget.switcherHeight * 2 ? widget.switcherHeight * 2 : widget.switcherWidth,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(widget.switcherHeight / 2)),
+            boxShadow: widget.switcherBoxShadowList ??
+                [
+                  BoxShadow(
+                      blurRadius: 4, blurStyle: BlurStyle.normal, color: Colors.grey[200]!, offset: Offset(-8, 8)),
+                  BoxShadow(
+                      blurRadius: 4, blurStyle: BlurStyle.normal, color: Colors.grey[400]!, offset: Offset(-6, 6)),
+                  BoxShadow(
+                      blurRadius: 4, blurStyle: BlurStyle.normal, color: Colors.grey[600]!, offset: Offset(-4, 4)),
+                  BoxShadow(
+                      blurRadius: 4, blurStyle: BlurStyle.normal, color: Colors.grey[800]!, offset: Offset(-2, 2)),
+                ],
+            border: widget.switcherBoxBorder ?? Border.all(color: Colors.transparent, width: 0),
+            color: null,
+            gradient: LinearGradient(
+              colors: widget.switcherGradientColor != null && widget.switcherGradientColor!.length >= 2
+                  ? widget.switcherGradientColor!
+                  : [Colors.yellow[100]!, Colors.yellow[800]!],
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              (presed && widget.secondText != null && _animationController.isCompleted)
+                  ? Center(
+                      child: FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 3.0),
+                          child: Center(child: widget.secondText!),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: EdgeInsets.only(
+                          left: (_animationController.value + _unActiveAnimationController.value) *
+                              widget.switcherHeight /
+                              4),
+                      child: InkWell(
+                        onTap: () {
+                          if (!presed) {
+                            setState(() {
+                              switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
+                            });
+
+                            if (!switcherState.condition) {
+                              _unActiveAnimationController.forward();
+
+                              return;
+                            }
+                            if (widget.onFirstPress != null) widget.onFirstPress!.call();
+
+                            _animationController.forward();
+                            presed = true;
+                          } else {
+                            setState(() {
+                              switcherState =
+                                  switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
+                            });
+                            if (!switcherState.condition) {
+                              _unActiveAnimationController.forward();
+
+                              return;
+                            }
+                            if (widget.onSecondPress != null) widget.onSecondPress!.call();
+                            _animationController.reverse();
+                            presed = false;
+                          }
+                        },
+                        child: Transform.rotate(
+                          angle: presed
+                              ? widget.indicatorRotationAngel *
+                                  (2 * pi / 360) *
+                                  (_animationController.value - _unActiveAnimationController.value)
+                              : widget.indicatorRotationAngel *
+                                  (2 * pi / 360) *
+                                  (_animationController.value + _unActiveAnimationController.value),
+                          child: Container(
+                            height: widget.switcherHeight -
+                                widget.switcherHeight *
+                                    (_animationController.value + _unActiveAnimationController.value),
+                            width: widget.switcherHeight -
+                                widget.switcherHeight *
+                                    (_animationController.value + _unActiveAnimationController.value),
+                            decoration: ShapeDecoration(
+                              color: widget.switcherState1.indicatorColor,
+                              shadows: widget.switcherState1.indicatorBoxShadow ??
+                                  [
+                                    BoxShadow(
+                                      blurRadius: 2,
+                                      blurStyle: BlurStyle.normal,
+                                      color: Colors.grey[800]!,
+                                    ),
+                                  ],
+                              shape: StarBorder(
+                                side: widget.switcherState1.indicatorBorder ?? BorderSide(color: Colors.transparent),
+                                points: widget.switcherState1.starHeadsNumber ?? 7,
+                                innerRadiusRatio: widget.switcherState1.starInnerRadius ?? 0.7,
+                                pointRounding: widget.switcherState1.starHeadsRounding ?? 0,
+                                valleyRounding: widget.switcherState1.starValleyRounding ?? 0,
+                              ),
+                            ),
+                            child: FittedBox(
+                              child: Padding(
+                                padding: const EdgeInsets.all(3),
+                                child: widget.indicatorChild ?? SizedBox(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+              (!presed && widget.startText != null && _animationController.isDismissed)
+                  ? Center(
+                      child: FittedBox(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 3.0),
+                          child: Center(child: widget.startText!),
+                        ),
+                      ),
+                    )
+                  : Padding(
+                      padding: EdgeInsets.only(
+                          right: widget.switcherHeight / 4 -
+                              (_animationController.value - _unActiveAnimationController.value) *
+                                  widget.switcherHeight /
+                                  4),
+                      child: InkWell(
+                        onTap: () {
+                          if (!presed) {
+                            setState(() {
+                              switcherState = switcherState.copyWith(condition: widget.switcherState1.condition);
+                            });
+
+                            if (!switcherState.condition) {
+                              _unActiveAnimationController.forward();
+
+                              return;
+                            }
+                            if (widget.onFirstPress != null) widget.onFirstPress!.call();
+
+                            _animationController.forward();
+                            presed = true;
+                          } else {
+                            setState(() {
+                              switcherState =
+                                  switcherState.copyWith(condition: widget.switcherState2?.condition ?? true);
+                            });
+                            if (!switcherState.condition) {
+                              _unActiveAnimationController.forward();
+
+                              return;
+                            }
+                            if (widget.onSecondPress != null) widget.onSecondPress!.call();
+                            _animationController.reverse();
+                            presed = false;
+                          }
+                        },
+                        child: Transform.rotate(
+                          angle: presed
+                              ? widget.indicatorRotationAngel *
+                                  (2 * pi / 360) *
+                                  (_animationController.value - _unActiveAnimationController.value)
+                              : widget.indicatorRotationAngel *
+                                  (2 * pi / 360) *
+                                  (_animationController.value + _unActiveAnimationController.value),
+                          child: Container(
+                            height: widget.switcherHeight *
+                                (_animationController.value - _unActiveAnimationController.value),
+                            width: widget.switcherHeight *
+                                (_animationController.value - _unActiveAnimationController.value),
+                            decoration: ShapeDecoration(
+                              color: widget.switcherState2?.indicatorColor ?? widget.switcherState1.indicatorColor,
+                              shadows: widget.switcherState2?.indicatorBoxShadow ??
+                                  widget.switcherState1.indicatorBoxShadow ??
+                                  [
+                                    BoxShadow(
+                                      blurRadius: 2,
+                                      blurStyle: BlurStyle.normal,
+                                      color: Colors.grey[800]!,
+                                    ),
+                                  ],
+                              shape: StarBorder(
+                                side: widget.switcherState2?.indicatorBorder ??
+                                    widget.switcherState1.indicatorBorder ??
+                                    BorderSide(color: Colors.transparent),
+                                points: widget.switcherState2?.starHeadsNumber ??
+                                    widget.switcherState1.starHeadsNumber ??
+                                    7,
+                                innerRadiusRatio: widget.switcherState2?.starInnerRadius ??
+                                    widget.switcherState1.starInnerRadius ??
+                                    0.7,
+                                pointRounding: widget.switcherState2?.starHeadsRounding ??
+                                    widget.switcherState1.starHeadsRounding ??
+                                    0,
+                                valleyRounding: widget.switcherState2?.starValleyRounding ??
+                                    widget.switcherState1.starValleyRounding ??
+                                    0,
+                              ),
+                            ),
+                            child: FittedBox(
+                              child: Padding(
+                                padding: const EdgeInsets.all(3.0),
+                                child: widget.indicatorChild ?? SizedBox(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+            ],
+          ),
+        ),
+      );
     }
     if (widget.switchingTyp == SwitchingTyp.flipSingleState) {
       return Center(
@@ -326,7 +572,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
           },
           child: Transform.rotate(
             angle: widget.indicatorRotationAngel * (2 * pi / 360) * _animationController.value +
-                _unActiveAnimation.value * widget.indicatorRotationAngel * (pi / 360),
+                _unActiveAnimationController.value * widget.indicatorRotationAngel * (pi / 360),
             child: AnimatedContainer(
               height: switcherState.indicatorSize == null
                   ? 40 - _unActiveAnimationController.value * 40
@@ -419,9 +665,9 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
           Positioned(
             left: presed
                 ? (widget.switcherWidth - widget.switcherHeight) *
-                    (_animationController.value - _unActiveAnimation.value)
+                    (_animationController.value - _unActiveAnimationController.value)
                 : (widget.switcherWidth - widget.switcherHeight) *
-                    (_animationController.value + _unActiveAnimation.value),
+                    (_animationController.value + _unActiveAnimationController.value),
             height: widget.switcherHeight,
             width: widget.switcherHeight,
             child: InkWell(
@@ -458,10 +704,10 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                 angle: presed
                     ? widget.indicatorRotationAngel *
                         (2 * pi / 360) *
-                        (_animationController.value - _unActiveAnimation.value)
+                        (_animationController.value - _unActiveAnimationController.value)
                     : widget.indicatorRotationAngel *
                         (2 * pi / 360) *
-                        (_animationController.value + _unActiveAnimation.value),
+                        (_animationController.value + _unActiveAnimationController.value),
                 child: AnimatedContainer(
                     duration: widget.animationDuration ?? Duration(milliseconds: 500),
                     decoration: ShapeDecoration(

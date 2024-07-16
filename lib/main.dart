@@ -75,34 +75,36 @@ class _MyHomePageState extends State<MyHomePage> {
         //   print('first unactive');
         // },
         // onSecondUnactive: null,
-        // indicatorRotationAngel: 360,
+        indicatorRotationAngel: 180,
         switcherState1: AmazingSwitcherState(
-          starHeadsNumber: 4,
+          starHeadsNumber: 9,
           indicatorColor: Colors.red,
           condition: switcher,
         ),
-        // switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black, indicatorSize: 30),
-        // // startText: Text(
-        // //   'one',
-        // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        // // ),
+        // switcherState2: AmazingSwitcherState(condition: switcher),
+        switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black, starHeadsNumber: 3),
+        startText: Text(
+          'One',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        secondText: Text(
+          'Two',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
         // // secondText: Text(
         // //   'Two',
         // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
         // // ),
         // // AmazingSwitcher(
-        // onFirstPress: () {
-        //   print('press1');
-        // },
-        // onSecondPress: () {
-        //   print('press2');
-        // },
-        // onFirstAnimationComplete: () {
-        //   print('on first Animation Complete');
-        // },
-        // onSecondAnimationComplete: () {
-        //   print('on second Animation Complete');
-        // },
+        // switcherHeight: 30,
+        // switcherWidth: 200,
+        onFirstPress: () => print('press1'),
+        onSecondPress: () => print('press2'),
+        onFirstAnimationComplete: () => print('on first Animation Complete'),
+
+        onSecondAnimationComplete: () => print('on second Animation Complete'),
+        onSecondUnactive: () => print('onSecondUnactive'),
+        onFirstUnactive: () => print('onFirstUnactive'),
         // ),
       ),
     );

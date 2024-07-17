@@ -20,11 +20,13 @@ class FlippWidget extends StatefulWidget {
     this.condition = true,
     this.flipDirection,
     this.animationCurve,
+    this.beginnWithFirstState = true,
   });
   final Duration? animationDuration;
   final double height;
   final double width;
   final bool flipWithTranslate;
+  final bool beginnWithFirstState;
   final bool condition;
   final Widget? startChild;
   final Widget? secondChild;
@@ -43,11 +45,12 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
   late AnimationController controller;
   late Animation<double> animation;
   late AnimationController unactiveController;
+  late bool beginnWithFirstState;
 
   @override
   void initState() {
     super.initState();
-
+    beginnWithFirstState = widget.beginnWithFirstState;
     unactiveController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 300),
@@ -66,7 +69,7 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
       );
 
     controller = AnimationController(
-      duration: widget.animationDuration ?? const Duration(seconds: 1),
+      duration: !beginnWithFirstState ? Duration.zero : widget.animationDuration ?? const Duration(seconds: 1),
       vsync: this,
     );
     animation = CurvedAnimation(
@@ -90,6 +93,10 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
           if (widget.onSecondAnimationComplete != null) widget.onSecondAnimationComplete!.call();
         }
       });
+    if (!beginnWithFirstState) {
+      clickFunction();
+      controller.duration = widget.animationDuration ?? const Duration(seconds: 1);
+    }
   }
 
   @override
@@ -104,20 +111,7 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
     return Center(
       child: GestureDetector(
         onTap: () {
-          print(widget.condition);
-          if (animation.status == AnimationStatus.forward || animation.status == AnimationStatus.completed) {
-            if (!widget.condition) {
-              unactiveController.forward();
-              return;
-            }
-            controller.reverse();
-          } else if (animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed) {
-            if (!widget.condition) {
-              unactiveController.forward();
-              return;
-            }
-            controller.forward();
-          }
+          clickFunction();
         },
         child: widget.flipDirection == FlipDirection.left
             ? Transform(
@@ -125,7 +119,9 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
                 transform: Matrix4.identity()
                   ..setEntry(3, 2, 0.003)
                   ..rotateY(-(animation.value + unactiveController.value) * pi)
-                  ..translate(widget.flipWithTranslate ? widget.width * (animation.value + unactiveController.value) : 0.01, 0.00),
+                  ..translate(
+                      widget.flipWithTranslate ? widget.width * (animation.value + unactiveController.value) : 0.01,
+                      0.00),
                 child: animation.value < 0.5
                     ? SizedBox(
                         child: widget.startChild != null
@@ -181,7 +177,11 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
                     transform: Matrix4.identity()
                       ..setEntry(3, 2, 0.003)
                       ..rotateY((animation.value + unactiveController.value) * pi)
-                      ..translate(widget.flipWithTranslate ? -widget.width * (animation.value + unactiveController.value) : 0.01, 0.00),
+                      ..translate(
+                          widget.flipWithTranslate
+                              ? -widget.width * (animation.value + unactiveController.value)
+                              : 0.01,
+                          0.00),
                     child: animation.value < 0.5
                         ? SizedBox(
                             child: widget.startChild != null
@@ -243,7 +243,11 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
                         transform: Matrix4.identity()
                           ..setEntry(3, 2, 0.003)
                           ..rotateX(-(animation.value + unactiveController.value) * pi)
-                          ..translate(0.00, widget.flipWithTranslate ? -widget.height * (animation.value + unactiveController.value) : 0),
+                          ..translate(
+                              0.00,
+                              widget.flipWithTranslate
+                                  ? -widget.height * (animation.value + unactiveController.value)
+                                  : 0),
                         child: animation.value < 0.5
                             ? SizedBox(
                                 child: widget.startChild != null
@@ -364,5 +368,21 @@ class _FlippWidgetState extends State<FlippWidget> with TickerProviderStateMixin
                       ),
       ),
     );
+  }
+
+  void clickFunction() {
+    if (animation.status == AnimationStatus.forward || animation.status == AnimationStatus.completed) {
+      if (!widget.condition) {
+        unactiveController.forward();
+        return;
+      }
+      controller.reverse();
+    } else if (animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed) {
+      if (!widget.condition) {
+        unactiveController.forward();
+        return;
+      }
+      controller.forward();
+    }
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:amazing_tools/tools/amazing_switcher.dart';
 import 'package:amazing_tools/tools/calender/models/calendar_state_classe.dart';
 import 'package:amazing_tools/tools/flip_widget.dart';
@@ -52,60 +54,65 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
       ),
-      body: AmazingSwitcher.dualStateVisibility(
-        // flipDirection: FlipDirection.right,
-        // height: 100,
-        // width: 100,
-        // firstFlipCondition: switcher,
-        // secondFlipCondition: switcher,
-        // startSide: Icon(
-        //   Icons.star,
-        //   size: 100,
-        // ),
+      body: Transform.rotate(
+        angle: 0,
+        child: AmazingSwitcher.dualStateVisibility(
+          beginnWithFirstState: false,
+          switcherGradientColor: [Colors.black, Colors.blue, Colors.white],
+          // flipDirection: FlipDirection.right,
+          // switcherHeight: 90,
+          // switcherWidth: 100,
+          // firstFlipCondition: switcher,
+          // secondFlipCondition: switcher,
+          // startSide: Icon(
+          //   Icons.star,
+          //   size: 100,
+          // ),
 
-        // secondSide: Transform.rotate(
-        //   angle: 3.14,
-        //   child: Icon(
-        //     Icons.star,
-        //     size: 100,
-        //     color: Colors.blue,
-        //   ),
-        // ),
-        // onFirstUnactive: () {
-        //   print('first unactive');
-        // },
-        // onSecondUnactive: null,
-        indicatorRotationAngel: 180,
-        switcherState1: AmazingSwitcherState(
-          starHeadsNumber: 9,
-          indicatorColor: Colors.red,
-          condition: switcher,
-        ),
-        // switcherState2: AmazingSwitcherState(condition: switcher),
-        switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black, starHeadsNumber: 3),
-        startText: Text(
-          'One',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-        ),
-        secondText: Text(
-          'Two',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-        ),
-        // // secondText: Text(
-        // //   'Two',
-        // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        // // ),
-        // // AmazingSwitcher(
-        // switcherHeight: 30,
-        // switcherWidth: 200,
-        onFirstPress: () => print('press1'),
-        onSecondPress: () => print('press2'),
-        onFirstAnimationComplete: () => print('on first Animation Complete'),
+          // secondSide: Transform.rotate(
+          //   angle: 3.14,
+          //   child: Icon(
+          //     Icons.star,
+          //     size: 100,
+          //     color: Colors.blue,
+          //   ),
+          // ),
+          // onFirstUnactive: () {
+          //   print('first unactive');
+          // },
+          // onSecondUnactive: null,
+          indicatorRotationAngel: 180,
+          switcherState1: AmazingSwitcherState(
+            starHeadsNumber: 9,
+            indicatorColor: Colors.white,
+            condition: switcher,
+          ),
+          // switcherState2: AmazingSwitcherState(condition: switcher),
+          switcherState2: AmazingSwitcherState(condition: switcher, indicatorColor: Colors.black, starHeadsNumber: 3),
+          startText: Text(
+            'One',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          secondText: Text(
+            'Two',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
+          ),
+          // // secondText: Text(
+          // //   'Two',
+          // //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          // // ),
+          // // AmazingSwitcher(
+          // switcherHeight: 30,
+          // switcherWidth: 200,
+          onFirstPress: () => print('press1'),
+          onSecondPress: () => print('press2'),
+          onFirstAnimationComplete: () => print('on first Animation Complete'),
 
-        onSecondAnimationComplete: () => print('on second Animation Complete'),
-        onSecondUnactive: () => print('onSecondUnactive'),
-        onFirstUnactive: () => print('onFirstUnactive'),
-        // ),
+          onSecondAnimationComplete: () => print('on second Animation Complete'),
+          onSecondUnactive: () => print('onSecondUnactive'),
+          onFirstUnactive: () => print('onFirstUnactive'),
+          // ),
+        ),
       ),
     );
   }

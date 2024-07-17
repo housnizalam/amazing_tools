@@ -56,8 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Transform.rotate(
         angle: 0,
-        child: AmazingSwitcher.dualStateVisibility(
-          beginnWithFirstState: false,
+        child: AmazingSwitcher.dualScaleState(
+          // beginnWithFirstState: false,
           switcherGradientColor: [Colors.black, Colors.blue, Colors.white],
           // flipDirection: FlipDirection.right,
           // switcherHeight: 90,

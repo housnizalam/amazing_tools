@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:amazing_tools/tools/flip_widget.dart';
 
 // Diese Enum beinhaltet Die Sitching States, dadurch kann man eintscheden, welche Factory benutzt werden soll
-enum SwitchingTyp { dualState, starSingleState, flipSingleState, dualStateVisibility }
+enum SwitchingTyp { dualState, starSingleState, flipSingleState, dualScaleState }
 
 class AmazingSwitcher extends StatefulWidget {
 // Dise Inernal Konstraktor wird benutzt um die Factories Bedarfsgerecht bauen zu können
@@ -136,7 +136,8 @@ class AmazingSwitcher extends StatefulWidget {
   ///- [secondFlipCondition] : es ist die Vorraussetzung, die verfüllt werden soll, um die zweite switching Animation und Funktion activieren kann. Standardweise ist es True.
 
   final bool secondFlipCondition;
-///- [beginnWithFirstState] : es feststellt mit welche Situation, der Switcher anfangen soll. ZB standardweise ist der Indikator links und besitzt die Situation eins Eigenschaften, aber wenn diese Variable false ist der Indikator rechts und besitzt die zweite Situation Eigenschaften.
+
+  ///- [beginnWithFirstState] : es feststellt mit welche Situation, der Switcher anfangen soll. ZB standardweise ist der Indikator links und besitzt die Situation eins Eigenschaften, aber wenn diese Variable false ist der Indikator rechts und besitzt die zweite Situation Eigenschaften.
   final bool beginnWithFirstState;
 
   ///- [AmazingSwitcher.starSingleState] : Diese Factory baut einen Switcher mit einziger Indikator Platz, was sich ändert, ist nur die Indikator Form gemäß die gegebene Switcher Situationen.
@@ -219,12 +220,12 @@ class AmazingSwitcher extends StatefulWidget {
       secondText: secondSide,
       switcherState1: AmazingSwitcherState(),
       switchingTyp: SwitchingTyp.flipSingleState,
-      beginnWithFirstState:beginnWithFirstState,
+      beginnWithFirstState: beginnWithFirstState,
     );
   }
 
-  ///_ [AmazingSwitcher.dualStateVisibility] : Diese Factory baut einen Switcher, der zwei indikatoren hat, eine ist scheinbar und der andere verborgen. wenn einer gecklikt ist, verbirgt sich und erscheind der andere mit Animation Effekt.
-  factory AmazingSwitcher.dualStateVisibility({
+  ///_ [AmazingSwitcher.dualScaleState] : Diese Factory baut einen Switcher, der zwei indikatoren hat, eine ist scheinbar und der andere verborgen. wenn einer gecklikt ist, verbirgt sich und erscheind der andere mit Animation Effekt.
+  factory AmazingSwitcher.dualScaleState({
     Key? key,
     required AmazingSwitcherState switcherState1,
     final double switcherHeight = 40,
@@ -247,7 +248,7 @@ class AmazingSwitcher extends StatefulWidget {
     bool beginnWithFirstState = true,
   }) {
     return AmazingSwitcher._internal(
-      switchingTyp: SwitchingTyp.dualStateVisibility,
+      switchingTyp: SwitchingTyp.dualScaleState,
       switcherState1: switcherState1,
       switcherState2: switcherState2,
       switcherHeight: switcherHeight,
@@ -287,7 +288,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
   late AmazingSwitcherState switcherState;
   // presed feststellt die Switching Situation
   bool presed = false;
- // beginnWithFirstState es kontrolliert die beginn Situation des Switchers
+  // beginnWithFirstState es kontrolliert die beginn Situation des Switchers
   late bool beginnWithFirstState;
   @override
   void initState() {
@@ -362,7 +363,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
           }
         });
       });
-      // Diese wird nur aufgerufen wenn beginnWithFirstState false ist, um 
+    // Diese wird nur aufgerufen wenn beginnWithFirstState false ist, um
     if (!beginnWithFirstState) {
       // _onClickFunction ist eine Symulationsfunktion zu dem Switcher-Drücken
       _onClickFunction();
@@ -394,13 +395,13 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
     #############################################################################################################
     #############################################################################################################
                                           ***************************
-    ****************************************  Dual Visibility State  ********************************************
+    ****************************************  Dual Scale State  ********************************************
                                           ***************************
     #############################################################################################################
     #############################################################################################################
     #############################################################################################################
     */
-    if (widget.switchingTyp == SwitchingTyp.dualStateVisibility) {
+    if (widget.switchingTyp == SwitchingTyp.dualScaleState) {
       return Center(
         child: Container(
           height: widget.switcherHeight,
@@ -466,7 +467,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                               4),
                       child: InkWell(
                         onTap: () {
-                          _dualVisibilityStateClickFunktion();
+                          _dualScaleStateClickFunktion();
                         },
                         child: Transform.rotate(
                           // Nicht aktive Rotation
@@ -533,7 +534,7 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
                                   4),
                       child: InkWell(
                         onTap: () {
-                          _dualVisibilityStateClickFunktion();
+                          _dualScaleStateClickFunktion();
                         },
                         child: Transform.rotate(
                           angle: presed
@@ -840,14 +841,14 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
     #############################################################################################################
     #############################################################################################################
     */
-    // Clicken Symilations funktion
+  // Clicken Symilations funktion
   void _onClickFunction() {
     if (widget.switchingTyp == SwitchingTyp.starSingleState) return _singleStarClickFunktion();
-    if (widget.switchingTyp == SwitchingTyp.dualStateVisibility) return _dualVisibilityStateClickFunktion();
+    if (widget.switchingTyp == SwitchingTyp.dualScaleState) return _dualScaleStateClickFunktion();
     _dualStateStarClickFunktion();
   }
 
-  void _dualVisibilityStateClickFunktion() {
+  void _dualScaleStateClickFunktion() {
     // wenn nicht pressed sind wir bei der erste Situation
     if (!presed) {
       setState(() {
@@ -943,6 +944,18 @@ class _AmazingSwitcherState extends State<AmazingSwitcher> with TickerProviderSt
     }
   }
 }
+
+/*
+    #############################################################################################################
+    #############################################################################################################
+    #############################################################################################################
+                                          ***************************
+    ****************************************  Switcher State Klasse  ********************************************
+                                          ***************************
+    #############################################################################################################
+    #############################################################################################################
+    #############################################################################################################
+    */
 
 class AmazingSwitcherState {
   ///- [indicatorColor] : bestimmt die Indikator Farbe.

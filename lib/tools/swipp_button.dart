@@ -4,22 +4,22 @@ import 'package:flutter/material.dart';
 /// This is a button that enables the user to control the screen with sweeping gestures.
 /// Parameters:
 /// - [child]:[child] is the widget representing the button. This widget is optional.
-/// - [onPressed]: [onSwipRight] is a function that the button should perform after sweeping to right.
-/// - [onPressed]: [onSwipLeft] is a function that the button should perform after sweeping to left.
+/// - [onPressed]: [onSwipLeft] is a function that the button should perform after sweeping to right.
+/// - [onPressed]: [onSwipRight] is a function that the button should perform after sweeping to left.
 /// - [onPressed]: [onSwipUp] is a function that the button should perform after sweeping to up.
 /// - [onPressed]: [onSwipDown] is a function that the button should perform after sweeping to down.
 
 class SwipeButton extends StatefulWidget {
   const SwipeButton({
     super.key,
-    this.onSwipRight,
     this.onSwipLeft,
+    this.onSwipRight,
     this.onSwipUp,
     this.onSwipDown,
     this.child,
   });
-  final Function(DragEndDetails details)? onSwipRight;
   final Function(DragEndDetails details)? onSwipLeft;
+  final Function(DragEndDetails details)? onSwipRight;
   final Function(DragEndDetails details)? onSwipUp;
   final Function(DragEndDetails details)? onSwipDown;
   final Widget? child;
@@ -63,8 +63,8 @@ class _SwipeButtonState extends State<SwipeButton> {
               if (kDebugMode) {}
             }
           : xDifference.isNegative
-              ? widget.onSwipRight
-              : widget.onSwipLeft,
+              ? widget.onSwipLeft
+              : widget.onSwipRight,
       child: widget.child,
     );
   }

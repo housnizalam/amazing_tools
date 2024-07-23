@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:amazing_tools/tools/swipp_button.dart';
 import 'package:flutter/material.dart';
 
@@ -11,9 +13,15 @@ class AmazingList extends StatefulWidget {
     this.deleteIcon,
     this.addItemIcon,
     this.showAddIconItem = true,
-    this.showdeleteItem = true,
     this.onAddItem,
     this.onDeleteItem,
+    this.startOffset,
+    this.listHeight = 400,
+    this.itemsWaitDuration,
+    this.addItemOffset,
+    this.removeItemOffset,
+    this.moveUpItemOffset,
+    this.moveDownItemOffset,
   });
   final List<Widget> items;
   final Function? onSwipeRight;
@@ -24,18 +32,22 @@ class AmazingList extends StatefulWidget {
   final Widget? deleteIcon;
   final Widget? addItemIcon;
   final bool showAddIconItem;
-  final bool showdeleteItem;
+  final AnimatedOffset? startOffset;
+  final AnimatedOffset? addItemOffset;
+  final AnimatedOffset? removeItemOffset;
+  final AnimatedOffset? moveUpItemOffset;
+  final AnimatedOffset? moveDownItemOffset;
+  final double listHeight;
+  final Duration? itemsWaitDuration;
   @override
   State<AmazingList> createState() => _AmazingListState();
 }
 
 class _AmazingListState extends State<AmazingList> {
-  Tween<Offset> offset = Tween(
-    begin: Offset(1, 4),
-    end: Offset(0, 0),
-  );
+  late Tween<Offset> offset;
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   late List<Widget> items;
+  int clickedIndex = -1;
 
   @override
   void initState() {
@@ -43,6 +55,10 @@ class _AmazingListState extends State<AmazingList> {
     items = [];
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
+        offset = Tween(
+          begin: widget.startOffset?.begin ?? const Offset(0, -1),
+          end: widget.startOffset?.end ?? const Offset(0, 0),
+        );
         _addItems(widget.items);
       },
     );
@@ -51,47 +67,122 @@ class _AmazingListState extends State<AmazingList> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 400,
+      height: widget.listHeight,
       child: Stack(
         children: [
-          AnimatedList(
-            key: listKey,
-            initialItemCount: items.length,
-            itemBuilder: (context, index, animation) {
-              return SlideTransition(
-                position: offset.animate(CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.linear,
-                )),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.showdeleteItem)
-                      IconButton(
-                        onPressed: () {
-                          removeItem(index);
-                          if (widget.onDeleteItem == null) return;
-                          widget.onDeleteItem!.call();
-                        },
-                        icon: widget.deleteIcon ?? Icon(Icons.delete),
-                      ),
-                    SwipeButton(
-                        onSwipLeft: (details) {
-                          if (widget.onSwipeLeft == null) return;
-                          widget.onSwipeLeft!.call();
-                          // removeItem(index);
-                        },
-                        onSwipRight: (details) {
-                          if (widget.onSwipeRight == null) return;
-                          widget.onSwipeRight!.call();
-
-                          // addItem(Center(child: Text('New Item')));
-                        },
-                        child: items[index]),
-                  ],
-                ),
-              );
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                clickedIndex = -1;
+              });
             },
+            child: AnimatedList(
+              key: listKey,
+              initialItemCount: items.length,
+              itemBuilder: (context, index, animation) {
+                return SlideTransition(
+                  position: offset.animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.linear,
+                  )),
+                  child: AnimatedScale(
+                    duration: const Duration(milliseconds: 300),
+                    scale: clickedIndex == index ? 1.2 : 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (clickedIndex == index)
+                          SizedBox(
+                            width: 18,
+                            child: InkWell(
+                              onTap: () {
+                                removeItem(index);
+                                setState(() {
+                                  clickedIndex = -1;
+                                });
+                                if (widget.onDeleteItem == null) return;
+                                widget.onDeleteItem!.call();
+                              },
+                              child: widget.deleteIcon ??
+                                  const Icon(
+                                    size: 22,
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                            ),
+                          ),
+                        SwipeButton(
+                            onDoubleClick: () {
+                              setState(() {
+                                clickedIndex = index;
+                              });
+                            },
+                            onSwipLeft: (details) {
+                              if (widget.onSwipeLeft == null) return;
+                              widget.onSwipeLeft!.call();
+                              // removeItem(index);
+                            },
+                            onSwipRight: (details) {
+                              if (widget.onSwipeRight == null) return;
+                              widget.onSwipeRight!.call();
+
+                              // addItem(Center(child: Text('New Item')));
+                            },
+                            child: items[index]),
+                        if (clickedIndex == index)
+                          Column(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    // offset = Tween(
+                                    //   begin: Offset(0, 1),
+                                    //   end: Offset(0, 0),
+                                    // );
+                                    moveItemUp(clickedIndex);
+                                    clickedIndex = -1;
+                                  });
+                                },
+                                child: Container(
+                                  height: 12,
+                                  width: 12,
+                                  decoration: const ShapeDecoration(
+                                    color: Colors.blue,
+                                    shape: StarBorder.polygon(sides: 3),
+                                  ),
+                                ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    //    offset = Tween(
+                                    //   begin: Offset(0, -1),
+                                    //   end: Offset(0, 0),
+                                    // );
+                                    moveItemDown(clickedIndex);
+                                    clickedIndex = -1;
+                                  });
+                                },
+                                child: Transform.rotate(
+                                  angle: pi,
+                                  child: Container(
+                                    height: 12,
+                                    width: 12,
+                                    decoration: const ShapeDecoration(
+                                      color: Colors.blue,
+                                      shape: StarBorder.polygon(sides: 3),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
           if (widget.addedItem != null)
             Align(
@@ -99,13 +190,13 @@ class _AmazingListState extends State<AmazingList> {
               child: widget.showAddIconItem
                   ? IconButton(
                       onPressed: () {
-                        addItem();
+                        clickedIndex == -1 ? addItem() : addItemAtIndex(clickedIndex + 1, widget.addedItem!);
                         if (widget.onAddItem == null) return;
                         widget.onAddItem!.call();
                       },
-                      icon: widget.addItemIcon ?? CircleAvatar(radius: 20, child: Icon(Icons.add)),
+                      icon: widget.addItemIcon ?? const CircleAvatar(radius: 20, child: Icon(Icons.add)),
                     )
-                  : SizedBox(),
+                  : const SizedBox(),
             ),
         ],
       ),
@@ -119,14 +210,15 @@ class _AmazingListState extends State<AmazingList> {
     for (var item in addedItems) {
       future = future.then(
         (_) {
-          return Future.delayed(Duration(milliseconds: 100), () {
+          return Future.delayed(widget.itemsWaitDuration ?? const Duration(milliseconds: 150), () {
             items.add(item);
             if (listKey.currentState != null) {
               listKey.currentState!.insertItem(
                 items.length - 1,
-                duration: Duration(
-                  milliseconds: 500,
-                ),
+                duration: widget.startOffset?.duration ??
+                    const Duration(
+                      milliseconds: 150,
+                    ),
               );
             }
           });
@@ -135,20 +227,57 @@ class _AmazingListState extends State<AmazingList> {
     }
   }
 
+  void addItemAtIndex(int index, Widget newItem) {
+    if (index < 0 || index > items.length) {
+      // Ensure index is valid
+      return;
+    }
+    if (widget.addItemOffset != null) {
+      offset = Tween(
+        begin: widget.addItemOffset!.begin,
+        end: widget.addItemOffset!.end,
+      );
+    }
+
+    // Insert the new item at the specified index
+    items.insert(index, newItem);
+
+    if (listKey.currentState != null) {
+      // Insert the new item into the AnimatedList
+      listKey.currentState!.insertItem(
+        index,
+        duration: widget.addItemOffset?.duration ?? const Duration(milliseconds: 250),
+      );
+    }
+  }
+
   void addItem() {
     if (widget.addedItem == null) return;
+    if (widget.addItemOffset != null) {
+      offset = Tween(
+        begin: widget.addItemOffset!.begin,
+        end: widget.addItemOffset!.end,
+      );
+    }
     items.add(widget.addedItem!);
     if (listKey.currentState != null) {
       listKey.currentState!.insertItem(
         items.length - 1,
-        duration: Duration(
-          milliseconds: 500,
-        ),
+        duration: widget.addItemOffset?.duration ??
+            const Duration(
+              milliseconds: 250,
+            ),
       );
     }
   }
 
   void removeItem(int index) {
+    if (widget.removeItemOffset != null) {
+      offset = Tween(
+        begin: widget.removeItemOffset!.begin,
+        end: widget.removeItemOffset!.end,
+      );
+    }
     if (index < 0 || index >= items.length) {
       // Ensure index is valid
       return;
@@ -170,23 +299,35 @@ class _AmazingListState extends State<AmazingList> {
             child: removedItem,
           );
         },
-        duration: Duration(milliseconds: 500),
+        duration:widget.removeItemOffset?.duration?? const Duration(milliseconds: 250),
       );
     }
   }
 
-  void replaceItem(int index, Widget newItem) {
-    if (index < 0 || index >= items.length) {
+  void moveItemUp(int index) {
+    if (widget.moveUpItemOffset != null) {
+      offset = Tween(
+        begin: widget.moveUpItemOffset!.begin,
+        end: widget.moveUpItemOffset!.end,
+      );
+    }else{
+      offset = Tween(
+        begin: const Offset(0, 1),
+        end: const Offset(0, 0),
+      );
+    }
+    if (index <= 0 || index >= items.length) {
       // Ensure index is valid
       return;
     }
-
-    // Replace the item in the list
-    final oldItem = items[index];
-    items[index] = newItem;
+    // Swap the item with the previous item
+    final currentItem = items[index];
+    final previousItem = items[index - 1];
+    items[index] = previousItem;
+    items[index - 1] = currentItem;
 
     if (listKey.currentState != null) {
-      // Remove the old item from the AnimatedList
+      // Update the positions of the items in the AnimatedList
       listKey.currentState!.removeItem(
         index,
         (context, animation) {
@@ -195,21 +336,75 @@ class _AmazingListState extends State<AmazingList> {
               parent: animation,
               curve: Curves.linear,
             )),
-            child: oldItem,
+            child: currentItem,
           );
         },
-        duration: Duration(milliseconds: 250),
+        duration:widget.moveUpItemOffset?.movedItemDuration?? const Duration(milliseconds: 0),
       );
 
-      // Insert the new item into the AnimatedList
-      Future.delayed(Duration(milliseconds: 300), () {
-        if (listKey.currentState != null) {
-          listKey.currentState!.insertItem(
-            index,
-            duration: Duration(milliseconds: 250),
-          );
-        }
-      });
+      listKey.currentState!.insertItem(
+        index - 1,
+        duration:widget.moveUpItemOffset?.duration?? const Duration(milliseconds: 250),
+      );
     }
   }
+
+  void moveItemDown(int index) {
+    if (widget.moveDownItemOffset != null) {
+      offset = Tween(
+        begin: widget.moveDownItemOffset!.begin,
+        end: widget.moveDownItemOffset!.end,
+      );
+    }else{
+      offset = Tween(
+        begin: const Offset(0, -1),
+        end: const Offset(0, 0),
+      );
+    }
+    if (index <= 0 || index >= items.length - 1) {
+      // Ensure index is valid
+      return;
+    }
+    // Swap the item with the previous item
+    final currentItem = items[index];
+    final previousItem = items[index + 1];
+    items[index] = previousItem;
+    items[index + 1] = currentItem;
+
+    if (listKey.currentState != null) {
+      // Update the positions of the items in the AnimatedList
+      listKey.currentState!.removeItem(
+        index,
+        (context, animation) {
+          return SlideTransition(
+            position: offset.animate(CurvedAnimation(
+              parent: animation,
+              curve: Curves.linear,
+            )),
+            child: currentItem,
+          );
+        },
+        duration:widget.moveDownItemOffset?.movedItemDuration?? const Duration(milliseconds: 0),
+      );
+
+      listKey.currentState!.insertItem(
+        index + 1,
+        duration:widget.moveDownItemOffset?.duration?? const Duration(milliseconds: 250),
+      );
+    }
+  }
+}
+
+class AnimatedOffset {
+  AnimatedOffset({
+    required this.begin,
+    required this.end,
+    required this.duration,
+    this.movedItemDuration,
+  });
+
+  final Offset begin;
+  final Offset end;
+  final Duration duration;
+  final Duration? movedItemDuration;
 }

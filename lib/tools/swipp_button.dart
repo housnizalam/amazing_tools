@@ -16,12 +16,14 @@ class SwipeButton extends StatefulWidget {
     this.onSwipRight,
     this.onSwipUp,
     this.onSwipDown,
+    this.onDoubleClick,
     this.child,
   });
   final Function(DragEndDetails details)? onSwipLeft;
   final Function(DragEndDetails details)? onSwipRight;
   final Function(DragEndDetails details)? onSwipUp;
   final Function(DragEndDetails details)? onSwipDown;
+  final Function? onDoubleClick;
   final Widget? child;
   @override
   State<SwipeButton> createState() => _SwipeButtonState();
@@ -35,6 +37,10 @@ class _SwipeButtonState extends State<SwipeButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onDoubleTap: () {
+        if (widget.onDoubleClick == null) return;
+        widget.onDoubleClick!.call();
+      },
       onVerticalDragStart: (details) {
         yStart = details.localPosition.dy;
       },

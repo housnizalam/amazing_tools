@@ -55,21 +55,30 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
         ),
-        body: Container(
-          color: Colors.grey[400],
-          child: AmazingList(
-            onAddItem: () {
-              print(index);
-              setState(() {
-                index++;
-                print(index);
-              });
-            },
-
-            addedItem: addedList[index % addedList.length],
-            items: items(),
-     
-          ),
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AmazingList.scaleAnimation(
+              backgroundBorder: Border.all(color: Colors.black, width: 4),
+              backgroundGradientColors: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.blue, Colors.red],
+              ),
+              // listBackgroundColor: Colors.blue[100]!,
+              // addItemOffset:
+              //     AnimatedOffset(begin: Offset(1, 0), end: Offset(0, 0), duration: Duration(milliseconds: 300)),
+              // removeItemOffset:
+              //     AnimatedOffset(begin: Offset(-1, 0), end: Offset(0, 0), duration: Duration(milliseconds: 300)),
+              onAddItem: () {
+                setState(() {
+                  index++;
+                });
+              },
+              addedItem: addedList[index % addedList.length],
+              items: items(),
+            ),
+          ],
         ));
   }
 }

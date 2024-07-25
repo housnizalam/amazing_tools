@@ -17,12 +17,16 @@ class SwipeButton extends StatefulWidget {
     this.onSwipUp,
     this.onSwipDown,
     this.onDoubleClick,
+    this.onLongPressUp,
+    this.onLongPressDown,
     this.child,
   });
   final Function(DragEndDetails details)? onSwipLeft;
   final Function(DragEndDetails details)? onSwipRight;
   final Function(DragEndDetails details)? onSwipUp;
   final Function(DragEndDetails details)? onSwipDown;
+  final Function(DragEndDetails details)? onLongPressUp;
+  final Function(DragEndDetails details)? onLongPressDown;
   final Function? onDoubleClick;
   final Widget? child;
   @override
@@ -37,6 +41,23 @@ class _SwipeButtonState extends State<SwipeButton> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
+      onLongPressDown: (details) {
+        yStart = details.localPosition.dy;
+      },
+      onLongPressMoveUpdate: (details) {
+        yDifference = details.localPosition.dy - yStart;
+      },
+      onLongPressUp: () {
+        if (yDifference > 0) {
+          if (widget.onLongPressDown == null) return;
+          widget.onLongPressDown!.call(DragEndDetails());
+        }
+        if (yDifference < 0) {
+          if (widget.onLongPressUp == null) return;
+          widget.onLongPressUp!.call(DragEndDetails());
+          print('long press up');
+        }
+      },
       onDoubleTap: () {
         if (widget.onDoubleClick == null) return;
         widget.onDoubleClick!.call();

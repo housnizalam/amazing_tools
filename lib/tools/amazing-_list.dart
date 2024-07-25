@@ -32,7 +32,11 @@ class AmazingList extends StatefulWidget {
     this.backGroundBorderRadius = 20,
     this.deleteConfirmation = false,
   });
+
+  ///- [items] The list of items to display in the AmazingList
   final List<Widget> items;
+
+  ///- [onSwipeRight] A callback function that is called when an item is swiped to the right
   final Function? onSwipeRight;
   final Function? onSwipeLeft;
   final Function? onAddItem;
@@ -214,6 +218,12 @@ class _AmazingListState extends State<AmazingList> {
                                   ),
                                 ),
                               SwipeButton(
+                                  onLongPressDown: (details) {
+                                    moveItemDown(index);
+                                  },
+                                  onLongPressUp: (details) {
+                                    moveItemUp(index);
+                                  },
                                   onDoubleClick: () {
                                     setState(() {
                                       clickedIndex = index;

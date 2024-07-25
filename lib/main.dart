@@ -67,7 +67,6 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               startAnimation: ItemsAnimationController(
                 duration: Duration(milliseconds: 500),
-                curve: Curves.slowMiddle,
                 //     duration: Duration(milliseconds: 150), turnsEnd: 3.99, offsetStart: Offset(1, 1)),
                 // removeItemAnimatiom: ItemsAnimationController(
                 //   offsetStart: Offset(0, 0),

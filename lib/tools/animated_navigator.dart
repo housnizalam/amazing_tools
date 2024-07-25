@@ -34,11 +34,11 @@ class AnimatedNavigator extends PageRouteBuilder {
         );
 
   /// This function makes the page slide to the left
-  /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the slide animation. Defaults to 300 milliseconds.
+  /// Parameters :
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the slide animation. Defaults to 300 milliseconds.
   static slideToLeft({
     required BuildContext context,
     required Widget page,
@@ -70,6 +70,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -89,10 +90,10 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   /// This function makes the page slide to the right.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the slide animation. Defaults to 300 milliseconds.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the slide animation. Defaults to 300 milliseconds.
   static slideToRight({
     required BuildContext context,
     required Widget page,
@@ -124,6 +125,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -143,10 +145,10 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   /// This function makes the page slide up.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the slide animation. Defaults to 300 milliseconds.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the slide animation. Defaults to 300 milliseconds.
   static slideUp({
     required BuildContext context,
     required Widget page,
@@ -178,6 +180,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -197,10 +200,10 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   /// This function makes the page slide down.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the slide animation. Defaults to 300 milliseconds.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the slide animation. Defaults to 300 milliseconds.
   static slideDown({
     required BuildContext context,
     required Widget page,
@@ -233,6 +236,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -252,11 +256,11 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   /// This function makes the page appear out of nothing.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the scale animation. Defaults to 300 milliseconds.
-  /// - [scaleBegin]: The size of the scale start. Defaults starts from zero.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the scale animation. Defaults to 300 milliseconds.
+  /// - [scaleBegin] : The size of the scale start. Defaults starts from zero.
 
   static scale({
     required BuildContext context,
@@ -292,6 +296,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -317,12 +322,12 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   ///This function makes the page appear out of nothing and rotate.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [turns]: The number of tuns.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the rotate animation. Defaults to 300 milliseconds.
-  /// - [scaleBegin]: The size of the scale start. Defaults starts from zero.
+  /// - [context] : The build context.
+  /// - [turns] : The number of tuns.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the rotate animation. Defaults to 300 milliseconds.
+  /// - [scaleBegin] : The size of the scale start. Defaults starts from zero.
   static rotate({
     required BuildContext context,
     required Widget page,
@@ -368,6 +373,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -386,12 +392,12 @@ class AnimatedNavigator extends PageRouteBuilder {
 
   /// This function makes the page open.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the oppening animation. Defaults to 300 milliseconds.
-  ///- [scaleBegin]: The oppening satrt size. Defaults starts from zero.
-  ///- [alignment]: The oppening start position(center,up,down). Defaults starts from center.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the oppening animation. Defaults to 300 milliseconds.
+  ///- [scaleBegin] : The oppening satrt size. Defaults starts from zero.
+  ///- [alignment] : The oppening start position(center,up,down). Defaults starts from center.
   static open({
     required BuildContext context,
     required Widget page,
@@ -432,6 +438,7 @@ class AnimatedNavigator extends PageRouteBuilder {
           ) =>
               page,
           transitionDuration: duration,
+          reverseTransitionDuration: duration,
           transitionsBuilder: (
             context,
             animation,
@@ -450,10 +457,10 @@ class AnimatedNavigator extends PageRouteBuilder {
         );
   /// This function makes the page appear slowly.
   /// Parameters:
-  /// - [context]: The build context.
-  /// - [page]: The widget representing the page.
-  /// - [naviType]: The navigation type (push, replace, or pop). Defaults to [NaviType.push].
-  /// - [duration]: The duration of the fade animation. Defaults to 300 milliseconds.
+  /// - [context] : The build context.
+  /// - [page] : The widget representing the page.
+  /// - [naviType] : The navigation type (push, replace, or pop). Defaults to [NaviType.push].
+  /// - [duration] : The duration of the fade animation. Defaults to 300 milliseconds.
   static fade({
     required BuildContext context,
     required Widget page,

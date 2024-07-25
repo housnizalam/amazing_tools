@@ -49,9 +49,11 @@ class _SwipeButtonState extends State<SwipeButton> {
       },
       onLongPressDown: (details) {
         yStart = details.localPosition.dy;
+        xStart = details.localPosition.dx;
       },
       onLongPressMoveUpdate: (details) {
         yDifference = details.localPosition.dy - yStart;
+        xDifference = details.localPosition.dx - xStart;
       },
       onLongPressUp: () {
         if (yDifference > 0) {
@@ -61,7 +63,6 @@ class _SwipeButtonState extends State<SwipeButton> {
         if (yDifference < 0) {
           if (widget.onLongPressUp == null) return;
           widget.onLongPressUp!.call(DragEndDetails());
-          print('long press up');
         }
       },
       onDoubleTap: () {

@@ -162,6 +162,7 @@ class AmazingList extends StatefulWidget {
 class _AmazingListState extends State<AmazingList> {
   late Tween<Offset> offset;
   late Tween<double> rotate;
+  late Tween<double> opacity;
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   late List<Widget> items;
   int clickedIndex = -1;
@@ -177,6 +178,7 @@ class _AmazingListState extends State<AmazingList> {
           end: widget.startOffset?.end ?? const Offset(0, 0),
         );
         rotate = Tween(begin: 0.0, end: widget.turns);
+        opacity = Tween(begin:0, end:1);
         _addItems(widget.items);
       },
     );
@@ -234,86 +236,82 @@ class _AmazingListState extends State<AmazingList> {
                           curve: Curves.linear,
                         ),
                       ),
-                      child: AnimatedScale(
-                        duration: const Duration(milliseconds: 300),
-                        scale: clickedIndex == index ? 1.2 : 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (clickedIndex == index)
-                              SizedBox(
-                                width: widget.deleteAndMoveIconSize / 2,
-                                child: InkWell(
-                                  onTap: () {
-                                    removeItem(index);
-                                    setState(() {
-                                      clickedIndex = -1;
-                                    });
-                                    if (widget.onDeleteItem == null) return;
-                                    widget.onDeleteItem!.call();
-                                  },
-                                  child: widget.deleteIcon ??
-                                      Icon(
-                                        size: widget.deleteAndMoveIconSize * 0.8,
-                                        Icons.delete,
-                                        color: Colors.red,
-                                      ),
-                                ),
-                              ),
-                            SwipeButton(
-                                onDoubleClick: () {
-                                  setState(() {
-                                    clickedIndex = index;
-                                  });
-                                },
-                                onSwipLeft: (details) {
-                                  if (widget.onSwipeLeft == null) return;
-                                  widget.onSwipeLeft!.call();
-                                  // removeItem(index);
-                                },
-                                onSwipRight: (details) {
-                                  if (widget.onSwipeRight == null) return;
-                                  widget.onSwipeRight!.call();
-
-                                  // addItem(Center(child: Text('New Item')));
-                                },
-                                child: items[index]),
-                            if (clickedIndex == index)
-                              Column(
-                                children: [
-                                  InkWell(
+                      child: FadeTransition(
+                        opacity: opacity.animate(
+                          CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.linear,
+                          ),
+                        ),
+                        child: AnimatedScale(
+                          duration: const Duration(milliseconds: 300),
+                          scale: clickedIndex == index ? 1.2 : 1,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (clickedIndex == index)
+                                SizedBox(
+                                  width: widget.deleteAndMoveIconSize / 2,
+                                  child: InkWell(
                                     onTap: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          duration: Duration(milliseconds: 5000),
+                                          content: Text('Are you sure you want to delete this item?'),
+                                          action: SnackBarAction(
+                                            label: 'Yes',
+                                            onPressed: () {
+                                              removeItem(index);
+                                            },
+                                          ),
+                                        ),
+                                      );
                                       setState(() {
-                                        // offset = Tween(
-                                        //   begin: Offset(0, 1),
-                                        //   end: Offset(0, 0),
-                                        // );
-                                        moveItemUp(clickedIndex);
                                         clickedIndex = -1;
                                       });
+                                      if (widget.onDeleteItem == null) return;
+                                      widget.onDeleteItem!.call();
                                     },
-                                    child: Container(
-                                      height: widget.deleteAndMoveIconSize / 2,
-                                      width: widget.deleteAndMoveIconSize / 2,
-                                      decoration: const ShapeDecoration(
-                                        color: Colors.blue,
-                                        shape: StarBorder.polygon(sides: 3),
-                                      ),
-                                    ),
+                                    child: widget.deleteIcon ??
+                                        Icon(
+                                          size: widget.deleteAndMoveIconSize * 0.8,
+                                          Icons.delete,
+                                          color: Colors.red,
+                                        ),
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      setState(() {
-                                        //    offset = Tween(
-                                        //   begin: Offset(0, -1),
-                                        //   end: Offset(0, 0),
-                                        // );
-                                        moveItemDown(clickedIndex);
-                                        clickedIndex = -1;
-                                      });
-                                    },
-                                    child: Transform.rotate(
-                                      angle: pi,
+                                ),
+                              SwipeButton(
+                                  onDoubleClick: () {
+                                    setState(() {
+                                      clickedIndex = index;
+                                    });
+                                  },
+                                  onSwipLeft: (details) {
+                                    if (widget.onSwipeLeft == null) return;
+                                    widget.onSwipeLeft!.call();
+                                    // removeItem(index);
+                                  },
+                                  onSwipRight: (details) {
+                                    if (widget.onSwipeRight == null) return;
+                                    widget.onSwipeRight!.call();
+                        
+                                    // addItem(Center(child: Text('New Item')));
+                                  },
+                                  child: items[index]),
+                              if (clickedIndex == index)
+                                Column(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          // offset = Tween(
+                                          //   begin: Offset(0, 1),
+                                          //   end: Offset(0, 0),
+                                          // );
+                                          moveItemUp(clickedIndex);
+                                          clickedIndex = -1;
+                                        });
+                                      },
                                       child: Container(
                                         height: widget.deleteAndMoveIconSize / 2,
                                         width: widget.deleteAndMoveIconSize / 2,
@@ -323,10 +321,29 @@ class _AmazingListState extends State<AmazingList> {
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                          ],
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          moveItemDown(clickedIndex);
+                                          clickedIndex = -1;
+                                        });
+                                      },
+                                      child: Transform.rotate(
+                                        angle: pi,
+                                        child: Container(
+                                          height: widget.deleteAndMoveIconSize / 2,
+                                          width: widget.deleteAndMoveIconSize / 2,
+                                          decoration: const ShapeDecoration(
+                                            color: Colors.blue,
+                                            shape: StarBorder.polygon(sides: 3),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -420,7 +437,18 @@ class _AmazingListState extends State<AmazingList> {
                             width: widget.deleteAndMoveIconSize / 2,
                             child: InkWell(
                               onTap: () {
-                                removeItem(index);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    duration: Duration(milliseconds: 5000),
+                                    content: Text('Are you sure you want to delete this item?'),
+                                    action: SnackBarAction(
+                                      label: 'Yes',
+                                      onPressed: () {
+                                        removeItem(index);
+                                      },
+                                    ),
+                                  ),
+                                );
                                 setState(() {
                                   clickedIndex = -1;
                                 });

@@ -59,6 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AmazingList.scaleAnimation(
+              scaleBeginn: 1,
               backgroundBorder: Border.all(color: Colors.black, width: 4),
               backgroundGradientColors: LinearGradient(
                 begin: Alignment.topLeft,

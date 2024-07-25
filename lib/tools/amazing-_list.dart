@@ -3,40 +3,7 @@ import 'dart:math';
 import 'package:amazing_tools/tools/swipp_button.dart';
 import 'package:flutter/material.dart';
 
-enum AnimationType { scale, slide, fade }
-
 class AmazingList extends StatefulWidget {
-  const AmazingList._internal({
-    super.key,
-    required this.items,
-    this.onSwipeRight,
-    this.onSwipeLeft,
-    this.addedItem,
-    this.deleteIcon,
-    this.addItemIcon,
-    this.showAddIconItem = true,
-    this.showRefereshItemsIcon = true,
-    this.onAddItem,
-    this.onDeleteItem,
-    this.startOffset,
-    this.listHeight = 400,
-    this.delayBetweenItems,
-    this.addItemOffset,
-    this.removeItemOffset,
-    this.moveUpItemOffset,
-    this.moveDownItemOffset,
-    this.listWidth = 250,
-    this.listBackgroundColor,
-    this.deleteAndMoveIconSize = 24,
-    this.refereshItemsIcon,
-    this.backgroundGradientColors,
-    this.backgroundBorder,
-    this.backGroundBorderRadius = 20,
-    this.scaleBeginn = 0.0,
-    this.scaleEnd = 1.0,
-    this.turns = 0.0,
-    this.animationType = AnimationType.slide,
-  });
   const AmazingList({
     super.key,
     required this.items,
@@ -49,13 +16,13 @@ class AmazingList extends StatefulWidget {
     this.showRefereshItemsIcon = true,
     this.onAddItem,
     this.onDeleteItem,
-    this.startOffset,
+    required this.startAnimation,
     this.listHeight = 400,
     this.delayBetweenItems,
-    this.addItemOffset,
-    this.removeItemOffset,
-    this.moveUpItemOffset,
-    this.moveDownItemOffset,
+    this.addItemAnimation,
+    this.removeItemAnimatiom,
+    this.moveUpItemAniamtion,
+    this.moveDownItemAnimation,
     this.listWidth = 250,
     this.listBackgroundColor,
     this.deleteAndMoveIconSize = 24,
@@ -63,10 +30,8 @@ class AmazingList extends StatefulWidget {
     this.backgroundGradientColors,
     this.backgroundBorder,
     this.backGroundBorderRadius = 20,
-  })  : animationType = AnimationType.slide,
-        scaleBeginn = 0.0,
-        scaleEnd = 1.0,
-        turns = 0.0;
+    this.deleteConfirmation = false,
+  });
   final List<Widget> items;
   final Function? onSwipeRight;
   final Function? onSwipeLeft;
@@ -78,11 +43,12 @@ class AmazingList extends StatefulWidget {
   final Widget? refereshItemsIcon;
   final bool showAddIconItem;
   final bool showRefereshItemsIcon;
-  final AnimatedOffset? startOffset;
-  final AnimatedOffset? addItemOffset;
-  final AnimatedOffset? removeItemOffset;
-  final AnimatedOffset? moveUpItemOffset;
-  final AnimatedOffset? moveDownItemOffset;
+  final bool deleteConfirmation;
+  final ItemsAnimationController startAnimation;
+  final ItemsAnimationController? addItemAnimation;
+  final ItemsAnimationController? removeItemAnimatiom;
+  final ItemsAnimationController? moveUpItemAniamtion;
+  final ItemsAnimationController? moveDownItemAnimation;
   final double listHeight;
   final double listWidth;
   final double deleteAndMoveIconSize;
@@ -91,80 +57,19 @@ class AmazingList extends StatefulWidget {
   final Color? listBackgroundColor;
   final Gradient? backgroundGradientColors;
   final Border? backgroundBorder;
-  final AnimationType animationType;
-  final double scaleBeginn;
-  final double scaleEnd;
-  final double turns;
-  //###############################################################################################
-  //#################################### Scale Animation ##########################################
-  //###############################################################################################
-  factory AmazingList.scaleAnimation({
-    Key? key,
-    required List<Widget> items,
-    final Function? onSwipeRight,
-    final Function? onSwipeLeft,
-    final Function? onAddItem,
-    final Function? onDeleteItem,
-    final Widget? addedItem,
-    final Widget? deleteIcon,
-    final Widget? addItemIcon,
-    final Widget? refereshItemsIcon,
-    final bool showAddIconItem = true,
-    final bool showRefereshItemsIcon = true,
-    final double listHeight = 400,
-    final double listWidth = 250,
-    final double deleteAndMoveIconSize = 24,
-    final double backGroundBorderRadius = 20,
-    final Duration? delayBetweenItems,
-    final Duration? animationDuration,
-    final Color? listBackgroundColor,
-    final Gradient? backgroundGradientColors,
-    final Border? backgroundBorder,
-    final double scaleBeginn = 0.0,
-    final double scaleEnd = 1.0,
-    final double turns = 0.0,
-  }) {
-    return AmazingList._internal(
-      items: items,
-      onSwipeRight: onSwipeRight,
-      onSwipeLeft: onSwipeLeft,
-      onAddItem: onAddItem,
-      onDeleteItem: onDeleteItem,
-      addedItem: addedItem,
-      deleteIcon: deleteIcon,
-      addItemIcon: addItemIcon,
-      refereshItemsIcon: refereshItemsIcon,
-      showAddIconItem: showAddIconItem,
-      showRefereshItemsIcon: showRefereshItemsIcon,
-      listHeight: listHeight,
-      listWidth: listWidth,
-      deleteAndMoveIconSize: deleteAndMoveIconSize,
-      backGroundBorderRadius: backGroundBorderRadius,
-      delayBetweenItems: delayBetweenItems,
-      startOffset: AnimatedOffset(
-        begin: const Offset(0, -1),
-        end: const Offset(0, 0),
-        duration: animationDuration ?? const Duration(milliseconds: 150),
-      ),
-      listBackgroundColor: listBackgroundColor,
-      backgroundGradientColors: backgroundGradientColors,
-      backgroundBorder: backgroundBorder,
-      scaleBeginn: scaleBeginn,
-      scaleEnd: scaleEnd,
-      turns: turns,
-      animationType: AnimationType.scale,
-    );
-  }
+
   @override
   State<AmazingList> createState() => _AmazingListState();
 }
 
 class _AmazingListState extends State<AmazingList> {
-  late Tween<Offset> offset;
-  late Tween<double> rotate;
-  late Tween<double> opacity;
   final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
   late List<Widget> items;
+  late ItemsAnimationController addItemAnimation;
+  late ItemsAnimationController removeItemAnimatiom;
+  late ItemsAnimationController moveUpItemAniamtion;
+  late ItemsAnimationController moveDownItemAnimation;
+  late ItemsAnimationController itemAnimation;
   int clickedIndex = -1;
 
   @override
@@ -173,12 +78,42 @@ class _AmazingListState extends State<AmazingList> {
     items = [];
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
-        offset = Tween(
-          begin: widget.startOffset?.begin ?? const Offset(0, -1),
-          end: widget.startOffset?.end ?? const Offset(0, 0),
-        );
-        rotate = Tween(begin: 0.0, end: widget.turns);
-        opacity = Tween(begin:0, end:1);
+        itemAnimation = widget.startAnimation;
+        addItemAnimation = widget.addItemAnimation ??
+            ItemsAnimationController(
+              duration: widget.startAnimation.duration,
+              offsetStart: const Offset(1, 0),
+              offsetEnd: const Offset(0, 0),
+              turnsEnd: widget.startAnimation.turnsEnd,
+              curve: widget.startAnimation.curve,
+            );
+        moveUpItemAniamtion = widget.moveUpItemAniamtion ??
+            ItemsAnimationController(
+              duration: widget.startAnimation.duration,
+              offsetStart: const Offset(0, 1),
+              offsetEnd: const Offset(0, 0),
+              scaleStart: 1,
+              turnsEnd: widget.startAnimation.turnsEnd,
+              curve: widget.startAnimation.curve,
+            );
+        moveDownItemAnimation = widget.moveDownItemAnimation ??
+            ItemsAnimationController(
+              duration: widget.startAnimation.duration,
+              offsetStart: const Offset(0, -1),
+              offsetEnd: const Offset(0, 0),
+              scaleStart: 1,
+              turnsEnd: widget.startAnimation.turnsEnd,
+              curve: widget.startAnimation.curve,
+            );
+        removeItemAnimatiom = widget.removeItemAnimatiom ??
+            ItemsAnimationController(
+              duration: widget.startAnimation.duration,
+              offsetStart: const Offset(-1, 0),
+              offsetEnd: const Offset(0, 0),
+              turnsEnd: widget.startAnimation.turnsEnd,
+              curve: widget.startAnimation.curve,
+            );
+
         _addItems(widget.items);
       },
     );
@@ -186,61 +121,55 @@ class _AmazingListState extends State<AmazingList> {
 
   @override
   Widget build(BuildContext context) {
-    /*
-    #############################################################################################################
-    #############################################################################################################
-    #############################################################################################################
-                                          ***************************
-    ****************************************     Scale Animation     ********************************************
-                                          ***************************
-    #############################################################################################################
-    #############################################################################################################
-    #############################################################################################################
-    */
-    if (widget.animationType == AnimationType.scale) {
-      return Container(
-        height: widget.listHeight,
-        width: widget.listWidth,
-        decoration: BoxDecoration(
-          border: widget.backgroundBorder ?? Border.all(color: Colors.transparent, width: 0),
-          borderRadius: BorderRadius.circular(widget.backGroundBorderRadius),
-          color: widget.backgroundGradientColors != null ? null : widget.listBackgroundColor ?? Colors.grey[400],
-          gradient: widget.backgroundGradientColors,
-        ),
-        child: Stack(
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  clickedIndex = -1;
-                });
-              },
-              child: AnimatedList(
-                key: listKey,
-                initialItemCount: items.length,
-                itemBuilder: (context, index, animation) {
-                  return ScaleTransition(
-                    scale: Tween<double>(
-                      begin: widget.scaleBeginn,
-                      end: widget.scaleEnd,
-                    ).animate(
+    return Container(
+      height: widget.listHeight,
+      width: widget.listWidth,
+      decoration: BoxDecoration(
+        border: widget.backgroundBorder ?? Border.all(color: Colors.transparent, width: 0),
+        borderRadius: BorderRadius.circular(widget.backGroundBorderRadius),
+        color: widget.backgroundGradientColors != null ? null : widget.listBackgroundColor ?? Colors.grey[400],
+        gradient: widget.backgroundGradientColors,
+      ),
+      child: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                clickedIndex = -1;
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+              });
+            },
+            child: AnimatedList(
+              key: listKey,
+              initialItemCount: items.length,
+              itemBuilder: (context, index, animation) {
+                return SlideTransition(
+                  position: Tween(
+                    begin: itemAnimation.offsetStart,
+                    end: itemAnimation.offsetEnd,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: itemAnimation.curve,
+                  )),
+                  child: RotationTransition(
+                    turns: Tween(begin: itemAnimation.turnsStart, end: itemAnimation.turnsEnd).animate(
                       CurvedAnimation(
                         parent: animation,
-                        curve: Curves.linear,
+                        curve: itemAnimation.curve,
                       ),
                     ),
-                    child: RotationTransition(
-                      turns: rotate.animate(
+                    child: FadeTransition(
+                      opacity: Tween(begin: itemAnimation.fadeStart, end: itemAnimation.fadeEnd).animate(
                         CurvedAnimation(
                           parent: animation,
-                          curve: Curves.linear,
+                          curve: itemAnimation.curve,
                         ),
                       ),
-                      child: FadeTransition(
-                        opacity: opacity.animate(
+                      child: ScaleTransition(
+                        scale: Tween(begin: itemAnimation.scaleStart, end: itemAnimation.scaleEnd).animate(
                           CurvedAnimation(
                             parent: animation,
-                            curve: Curves.linear,
+                            curve: itemAnimation.curve,
                           ),
                         ),
                         child: AnimatedScale(
@@ -254,18 +183,22 @@ class _AmazingListState extends State<AmazingList> {
                                   width: widget.deleteAndMoveIconSize / 2,
                                   child: InkWell(
                                     onTap: () {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          duration: Duration(milliseconds: 5000),
-                                          content: Text('Are you sure you want to delete this item?'),
-                                          action: SnackBarAction(
-                                            label: 'Yes',
-                                            onPressed: () {
-                                              removeItem(index);
-                                            },
+                                      if (widget.deleteConfirmation) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            duration: const Duration(milliseconds: 5000),
+                                            content: const Text('Are you sure you want to delete this item?'),
+                                            action: SnackBarAction(
+                                              label: 'Yes',
+                                              onPressed: () {
+                                                removeItem(index);
+                                              },
+                                            ),
                                           ),
-                                        ),
-                                      );
+                                        );
+                                      } else {
+                                        removeItem(index);
+                                      }
                                       setState(() {
                                         clickedIndex = -1;
                                       });
@@ -294,7 +227,7 @@ class _AmazingListState extends State<AmazingList> {
                                   onSwipRight: (details) {
                                     if (widget.onSwipeRight == null) return;
                                     widget.onSwipeRight!.call();
-                        
+
                                     // addItem(Center(child: Text('New Item')));
                                   },
                                   child: items[index]),
@@ -304,10 +237,6 @@ class _AmazingListState extends State<AmazingList> {
                                     InkWell(
                                       onTap: () {
                                         setState(() {
-                                          // offset = Tween(
-                                          //   begin: Offset(0, 1),
-                                          //   end: Offset(0, 0),
-                                          // );
                                           moveItemUp(clickedIndex);
                                           clickedIndex = -1;
                                         });
@@ -346,190 +275,6 @@ class _AmazingListState extends State<AmazingList> {
                           ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (widget.showAddIconItem)
-              Align(
-                alignment: Alignment.bottomRight,
-                child: widget.showAddIconItem
-                    ? IconButton(
-                        onPressed: () {
-                          if (widget.addedItem != null) {
-                            clickedIndex == -1 ? addItem() : addItemAtIndex(clickedIndex, widget.addedItem!);
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                duration: Duration(milliseconds: 500),
-                                content: Text('No item to add'),
-                              ),
-                            );
-                          }
-                          if (widget.onAddItem != null) {
-                            widget.onAddItem!.call();
-                          }
-                        },
-                        icon: widget.addItemIcon ?? const CircleAvatar(radius: 20, child: Icon(Icons.add)),
-                      )
-                    : const SizedBox(),
-              ),
-            if (widget.showRefereshItemsIcon)
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: IconButton(
-                  onPressed: () {
-                    refreshItems();
-                  },
-                  icon: widget.refereshItemsIcon ?? const CircleAvatar(radius: 20, child: Icon(Icons.refresh)),
-                ),
-              ),
-          ],
-        ),
-      );
-    }
-    /*
-    #############################################################################################################
-    #############################################################################################################
-    #############################################################################################################
-                                          ***************************
-    ****************************************     Slide Animation     ********************************************
-                                          ***************************
-    #############################################################################################################
-    #############################################################################################################
-    #############################################################################################################
-    */
-    return Container(
-      height: widget.listHeight,
-      width: widget.listWidth,
-      decoration: BoxDecoration(
-        border: widget.backgroundBorder ?? Border.all(color: Colors.transparent, width: 0),
-        borderRadius: BorderRadius.circular(widget.backGroundBorderRadius),
-        color: widget.backgroundGradientColors != null ? null : widget.listBackgroundColor ?? Colors.grey[400],
-        gradient: widget.backgroundGradientColors,
-      ),
-      child: Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                clickedIndex = -1;
-              });
-            },
-            child: AnimatedList(
-              key: listKey,
-              initialItemCount: items.length,
-              itemBuilder: (context, index, animation) {
-                return SlideTransition(
-                  position: offset.animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.linear,
-                  )),
-                  child: AnimatedScale(
-                    duration: const Duration(milliseconds: 300),
-                    scale: clickedIndex == index ? 1.2 : 1,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (clickedIndex == index)
-                          SizedBox(
-                            width: widget.deleteAndMoveIconSize / 2,
-                            child: InkWell(
-                              onTap: () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    duration: Duration(milliseconds: 5000),
-                                    content: Text('Are you sure you want to delete this item?'),
-                                    action: SnackBarAction(
-                                      label: 'Yes',
-                                      onPressed: () {
-                                        removeItem(index);
-                                      },
-                                    ),
-                                  ),
-                                );
-                                setState(() {
-                                  clickedIndex = -1;
-                                });
-                                if (widget.onDeleteItem == null) return;
-                                widget.onDeleteItem!.call();
-                              },
-                              child: widget.deleteIcon ??
-                                  Icon(
-                                    size: widget.deleteAndMoveIconSize * 0.8,
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                            ),
-                          ),
-                        SwipeButton(
-                            onDoubleClick: () {
-                              setState(() {
-                                clickedIndex = index;
-                              });
-                            },
-                            onSwipLeft: (details) {
-                              if (widget.onSwipeLeft == null) return;
-                              widget.onSwipeLeft!.call();
-                              // removeItem(index);
-                            },
-                            onSwipRight: (details) {
-                              if (widget.onSwipeRight == null) return;
-                              widget.onSwipeRight!.call();
-
-                              // addItem(Center(child: Text('New Item')));
-                            },
-                            child: items[index]),
-                        if (clickedIndex == index)
-                          Column(
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    // offset = Tween(
-                                    //   begin: Offset(0, 1),
-                                    //   end: Offset(0, 0),
-                                    // );
-                                    moveItemUp(clickedIndex);
-                                    clickedIndex = -1;
-                                  });
-                                },
-                                child: Container(
-                                  height: widget.deleteAndMoveIconSize / 2,
-                                  width: widget.deleteAndMoveIconSize / 2,
-                                  decoration: const ShapeDecoration(
-                                    color: Colors.blue,
-                                    shape: StarBorder.polygon(sides: 3),
-                                  ),
-                                ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  setState(() {
-                                    //    offset = Tween(
-                                    //   begin: Offset(0, -1),
-                                    //   end: Offset(0, 0),
-                                    // );
-                                    moveItemDown(clickedIndex);
-                                    clickedIndex = -1;
-                                  });
-                                },
-                                child: Transform.rotate(
-                                  angle: pi,
-                                  child: Container(
-                                    height: widget.deleteAndMoveIconSize / 2,
-                                    width: widget.deleteAndMoveIconSize / 2,
-                                    decoration: const ShapeDecoration(
-                                      color: Colors.blue,
-                                      shape: StarBorder.polygon(sides: 3),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                      ],
                     ),
                   ),
                 );
@@ -596,13 +341,7 @@ class _AmazingListState extends State<AmazingList> {
           return Future.delayed(widget.delayBetweenItems ?? const Duration(milliseconds: 150), () {
             items.add(item);
             if (listKey.currentState != null) {
-              listKey.currentState!.insertItem(
-                items.length - 1,
-                duration: widget.startOffset?.duration ??
-                    const Duration(
-                      milliseconds: 150,
-                    ),
-              );
+              listKey.currentState!.insertItem(items.length - 1, duration: itemAnimation.duration);
             }
           });
         },
@@ -611,15 +350,11 @@ class _AmazingListState extends State<AmazingList> {
   }
 
   void addItemAtIndex(int index, Widget newItem) {
+    itemAnimation = addItemAnimation;
+
     if (index < 0 || index > items.length) {
       // Ensure index is valid
       return;
-    }
-    if (widget.addItemOffset != null) {
-      offset = Tween(
-        begin: widget.addItemOffset!.begin,
-        end: widget.addItemOffset!.end,
-      );
     }
 
     // Insert the new item at the specified index
@@ -629,39 +364,28 @@ class _AmazingListState extends State<AmazingList> {
       // Insert the new item into the AnimatedList
       listKey.currentState!.insertItem(
         index,
-        duration: widget.animationType == AnimationType.scale
-            ? widget.startOffset?.duration ?? const Duration(milliseconds: 250)
-            : widget.addItemOffset?.duration ?? const Duration(milliseconds: 250),
+        duration: itemAnimation.duration,
       );
     }
   }
 
   void addItem() {
-    if (widget.addedItem == null) return;
-    if (widget.addItemOffset != null) {
-      offset = Tween(
-        begin: widget.addItemOffset!.begin,
-        end: widget.addItemOffset!.end,
-      );
-    }
+    setState(() {
+      itemAnimation = addItemAnimation;
+    });
+
     items.add(widget.addedItem!);
     if (listKey.currentState != null) {
       listKey.currentState!.insertItem(
         items.length - 1,
-        duration: widget.animationType == AnimationType.scale
-            ? widget.startOffset?.duration ?? const Duration(milliseconds: 250)
-            : widget.addItemOffset?.duration ?? const Duration(milliseconds: 250),
+        duration: itemAnimation.duration,
       );
     }
   }
 
   void removeItem(int index) {
-    if (widget.removeItemOffset != null) {
-      offset = Tween(
-        begin: widget.removeItemOffset!.begin,
-        end: widget.removeItemOffset!.end,
-      );
-    }
+    itemAnimation = removeItemAnimatiom;
+
     if (index < 0 || index >= items.length) {
       // Ensure index is valid
       return;
@@ -675,39 +399,52 @@ class _AmazingListState extends State<AmazingList> {
       listKey.currentState!.removeItem(
         index,
         (context, animation) {
-          if (widget.animationType == AnimationType.scale) {
-            return ScaleTransition(
-              scale: animation,
-              child: removedItem,
-            );
-          }
-          return SlideTransition(
-            position: offset.animate(CurvedAnimation(
+          return RotationTransition(
+            turns: Tween(
+              begin: itemAnimation.turnsStart,
+              end: itemAnimation.turnsEnd,
+            ).animate(CurvedAnimation(
               parent: animation,
-              curve: Curves.linear,
+              curve: itemAnimation.curve,
             )),
-            child: removedItem,
+            child: ScaleTransition(
+              scale: Tween(
+                begin: itemAnimation.scaleStart,
+                end: itemAnimation.scaleEnd,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: itemAnimation.curve,
+              )),
+              child: FadeTransition(
+                opacity: Tween(
+                  begin: itemAnimation.fadeStart,
+                  end: itemAnimation.fadeEnd,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: itemAnimation.curve,
+                )),
+                child: SlideTransition(
+                  position: Tween(
+                    begin: itemAnimation.offsetStart,
+                    end: itemAnimation.offsetEnd,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: itemAnimation.curve,
+                  )),
+                  child: removedItem,
+                ),
+              ),
+            ),
           );
         },
-        duration: widget.animationType == AnimationType.scale
-            ? widget.startOffset?.duration ?? const Duration(milliseconds: 250)
-            : widget.removeItemOffset?.duration ?? const Duration(milliseconds: 250),
+        duration: itemAnimation.duration,
       );
     }
   }
 
   void moveItemUp(int index) {
-    if (widget.moveUpItemOffset != null) {
-      offset = Tween(
-        begin: widget.moveUpItemOffset!.begin,
-        end: widget.moveUpItemOffset!.end,
-      );
-    } else {
-      offset = Tween(
-        begin: const Offset(0, 1),
-        end: const Offset(0, 0),
-      );
-    }
+    itemAnimation = moveUpItemAniamtion;
+
     if (index <= 0 || index >= items.length) {
       // Ensure index is valid
       return;
@@ -724,37 +461,29 @@ class _AmazingListState extends State<AmazingList> {
         index,
         (context, animation) {
           return SlideTransition(
-            position: offset.animate(CurvedAnimation(
+            position: Tween(
+              begin: itemAnimation.offsetStart,
+              end: itemAnimation.offsetEnd,
+            ).animate(CurvedAnimation(
               parent: animation,
-              curve: Curves.linear,
+              curve: itemAnimation.curve,
             )),
             child: currentItem,
           );
         },
-        duration: widget.moveUpItemOffset?.movedItemDuration ?? const Duration(milliseconds: 0),
+        duration: itemAnimation.movedItemDuration,
       );
 
       listKey.currentState!.insertItem(
         index - 1,
-        duration: widget.animationType == AnimationType.scale
-            ? widget.startOffset?.duration ?? const Duration(milliseconds: 250)
-            : widget.moveUpItemOffset?.duration ?? const Duration(milliseconds: 250),
+        duration: itemAnimation.duration,
       );
     }
   }
 
   void moveItemDown(int index) {
-    if (widget.moveDownItemOffset != null) {
-      offset = Tween(
-        begin: widget.moveDownItemOffset!.begin,
-        end: widget.moveDownItemOffset!.end,
-      );
-    } else {
-      offset = Tween(
-        begin: const Offset(0, -1),
-        end: const Offset(0, 0),
-      );
-    }
+    itemAnimation = moveDownItemAnimation;
+
     if (index < 0 || index >= items.length - 1) {
       // Ensure index is valid
       return;
@@ -771,31 +500,30 @@ class _AmazingListState extends State<AmazingList> {
         index,
         (context, animation) {
           return SlideTransition(
-            position: offset.animate(CurvedAnimation(
+            position: Tween(
+              begin: itemAnimation.offsetStart,
+              end: itemAnimation.offsetEnd,
+            ).animate(CurvedAnimation(
               parent: animation,
-              curve: Curves.linear,
+              curve: itemAnimation.curve,
             )),
             child: currentItem,
           );
         },
-        duration: widget.moveDownItemOffset?.movedItemDuration ?? const Duration(milliseconds: 0),
+        duration: itemAnimation.movedItemDuration,
       );
 
       listKey.currentState!.insertItem(
         index + 1,
-        duration: widget.animationType == AnimationType.scale
-            ? widget.startOffset?.duration ?? const Duration(milliseconds: 250)
-            : widget.moveDownItemOffset?.duration ?? const Duration(milliseconds: 250),
+        duration: itemAnimation.duration,
       );
     }
   }
 
   void refreshItems() {
     setState(() {
-      offset = Tween(
-        begin: widget.startOffset?.begin ?? const Offset(0, -1),
-        end: widget.startOffset?.end ?? const Offset(0, 0),
-      );
+      itemAnimation = widget.startAnimation;
+
       // Remove all items from the AnimatedList before clearing the items list
       if (listKey.currentState != null) {
         for (int i = items.length - 1; i >= 0; i--) {
@@ -814,38 +542,51 @@ class _AmazingListState extends State<AmazingList> {
     });
   }
 
-  void removeAllItems() {
-    if (listKey.currentState != null) {
-      for (int i = items.length - 1; i >= 0; i--) {
-        listKey.currentState!.removeItem(
-          i,
-          (context, animation) {
-            return SlideTransition(
-              position: offset.animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.linear,
-              )),
-              child: items[i],
-            );
-          },
-          duration: widget.removeItemOffset?.duration ?? const Duration(milliseconds: 0),
-        );
-        items.removeAt(i);
-      }
-    }
-  }
+  // void removeAllItems() {
+  //   if (listKey.currentState != null) {
+  //     for (int i = items.length - 1; i >= 0; i--) {
+  //       listKey.currentState!.removeItem(
+  //         i,
+  //         (context, animation) {
+  //           return SlideTransition(
+  //             position: offset.animate(CurvedAnimation(
+  //               parent: animation,
+  //               curve: Curves.linear,
+  //             )),
+  //             child: items[i],
+  //           );
+  //         },
+  //         duration: widget.removeItemAnimatiom?.duration ?? const Duration(milliseconds: 0),
+  //       );
+  //       items.removeAt(i);
+  //     }
+  //   }
+  // }
 }
 
-class AnimatedOffset {
-  AnimatedOffset({
-    required this.begin,
-    required this.end,
-    required this.duration,
-    this.movedItemDuration,
+class ItemsAnimationController {
+  ItemsAnimationController({
+    this.offsetStart = const Offset(0, -1),
+    this.offsetEnd = const Offset(0, 0),
+    this.duration = const Duration(milliseconds: 150),
+    this.movedItemDuration = const Duration(milliseconds: 0),
+    this.scaleStart = 0.5,
+    this.scaleEnd = 1.0,
+    this.turnsStart = 0.0,
+    this.fadeStart = 1.0,
+    this.fadeEnd = 1.0,
+    this.turnsEnd = 0.0,
+    this.curve = Curves.linear,
   });
-
-  final Offset begin;
-  final Offset end;
+  final double fadeStart;
+  final double fadeEnd;
+  final double scaleStart;
+  final double scaleEnd;
+  final double turnsStart;
+  final double turnsEnd;
+  final Offset offsetStart;
+  final Offset offsetEnd;
   final Duration duration;
-  final Duration? movedItemDuration;
+  final Duration movedItemDuration;
+  final Curve curve;
 }

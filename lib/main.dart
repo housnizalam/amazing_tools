@@ -58,19 +58,22 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AmazingList.scaleAnimation(
-              scaleBeginn: 1,
+            AmazingList(
               backgroundBorder: Border.all(color: Colors.black, width: 4),
               backgroundGradientColors: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [Colors.blue, Colors.red],
               ),
-              // listBackgroundColor: Colors.blue[100]!,
-              // addItemOffset:
-              //     AnimatedOffset(begin: Offset(1, 0), end: Offset(0, 0), duration: Duration(milliseconds: 300)),
-              // removeItemOffset:
-              //     AnimatedOffset(begin: Offset(-1, 0), end: Offset(0, 0), duration: Duration(milliseconds: 300)),
+              startAnimation: ItemsAnimationController(
+                duration: Duration(milliseconds: 500),
+                curve: Curves.slowMiddle,
+                //     duration: Duration(milliseconds: 150), turnsEnd: 3.99, offsetStart: Offset(1, 1)),
+                // removeItemAnimatiom: ItemsAnimationController(
+                //   offsetStart: Offset(0, 0),
+                //   turnsEnd: 3.99,
+                //   fadeStart: 1,
+              ),
               onAddItem: () {
                 setState(() {
                   index++;

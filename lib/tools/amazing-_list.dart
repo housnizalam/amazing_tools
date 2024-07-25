@@ -75,6 +75,7 @@ class _AmazingListState extends State<AmazingList> {
   late ItemsAnimationController moveDownItemAnimation;
   late ItemsAnimationController itemAnimation;
   int clickedIndex = -1;
+  int longPress = -1;
 
   @override
   void initState() {
@@ -178,7 +179,7 @@ class _AmazingListState extends State<AmazingList> {
                         ),
                         child: AnimatedScale(
                           duration: const Duration(milliseconds: 300),
-                          scale: clickedIndex == index ? 1.2 : 1,
+                          scale: (clickedIndex == index || longPress==index) ? 1.2 : 1,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -218,11 +219,22 @@ class _AmazingListState extends State<AmazingList> {
                                   ),
                                 ),
                               SwipeButton(
+                                  onLongPress: () {
+                                    setState(() {
+                                      longPress = index;
+                                    });
+                                  },
                                   onLongPressDown: (details) {
                                     moveItemDown(index);
+                                    setState(() {
+                                      longPress = -1;
+                                    });
                                   },
                                   onLongPressUp: (details) {
                                     moveItemUp(index);
+                                    setState(() {
+                                      longPress = -1;
+                                    });
                                   },
                                   onDoubleClick: () {
                                     setState(() {
